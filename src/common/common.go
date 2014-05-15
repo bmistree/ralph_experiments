@@ -2,5 +2,5 @@ package common
 
 type ExperimentModuler interface {
     Description() string
-    RunAll(jar, outputFolder string)
+    RunAll(jar_dir, outputFolder string)
 }
