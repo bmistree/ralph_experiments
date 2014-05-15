@@ -27,6 +27,8 @@ const READ_ATOM_NUM_ARG = "-an"
 const READ_ATOM_MAP_ARG = "-am"
 const READ_NUM_ARG = "-nan"
 const READ_MAP_ARG = "-nam"
+var WARM_TEST_NUM_OPS [6]uint32 =
+    [6]uint32{1000,5000,10000,50000,100000,150000}
 
 type ReadOnly struct {
 }
@@ -37,11 +39,17 @@ func(readOnly ReadOnly) RunAll(jar,outputFolder string) {
 
 func (readOnly ReadOnly) singleThreadWarmTests(jar_dir,outputFolder string) {
     fqJar := filepath.Join(jar_dir,READ_ONLY_JAR_NAME)
-    argSlice := []string {"-jar",fqJar}
-    argSlice = append(argSlice,readOnly.addReadsPerThread(5000)...)
-    argSlice = append(argSlice,readOnly.addNumThreads(1)...)
-    argSlice = append(argSlice,readOnly.addOperationType(READ_ATOM_NUM)...)
 
+    for _,numReads := range WARM_TEST_NUM_OPS {
+        argSlice := []string {"-jar",fqJar}
+        argSlice = append(argSlice,readOnly.addReadsPerThread(numReads)...)
+        argSlice = append(argSlice,readOnly.addNumThreads(1)...)
+        argSlice = append(argSlice,readOnly.addOperationType(READ_NUM)...)
+        readOnly.readOnlyJar(argSlice)
+    }
+}
+
+func (readOnly ReadOnly) readOnlyJar (argSlice []string) {
     var out bytes.Buffer    
     cmd := exec.Command("java", argSlice...)
     cmd.Stdout = &out
@@ -51,8 +59,9 @@ func (readOnly ReadOnly) singleThreadWarmTests(jar_dir,outputFolder string) {
 	}
     fmt.Println("\n\n")    
     fmt.Println(out.String())
-    fmt.Println("\n\n")
+    fmt.Println("\n\n")    
 }
+
 
 func (readOnly ReadOnly) addReadsPerThread(numOps uint32) []string {
     
