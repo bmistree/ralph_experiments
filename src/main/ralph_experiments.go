@@ -1,5 +1,5 @@
 package main
-import "github.com/bmistree/ralph_experiments/read_only"
+import "read_only"
 
 func main() {
     readOnlyModule := read_only.ReadOnly{}
