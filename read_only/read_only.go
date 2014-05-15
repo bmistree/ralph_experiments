@@ -1,4 +1,7 @@
-package read_only;
+package read_only
+
+import "strconv"
+import "fmt"
 
 /**
  Runs all read only performance tests for ralph
@@ -8,7 +11,7 @@ const NUM_WARM_OPS = 600000
 
 type operationType uint32
 const (
-    READ_ATOM_NUM operation_type = iota
+    READ_ATOM_NUM operationType = iota
     READ_ATOM_MAP
     READ_NUM
     READ_MAP
@@ -20,11 +23,7 @@ const READ_ATOM_MAP_ARG = "-am"
 const READ_NUM_ARG = "-nan"
 const READ_MAP_ARG = "-nam"
 
-
 type ReadOnly struct {
-    addNumOps(cmdString string, numOps uint32) string
-    addNumThreads(cmdString string, numThreads uint32) string
-    addOperationType(cmdString string, op operationType) string
 }
 
 func(readOnly ReadOnly) RunAll(jar,outputFolder string) {
@@ -34,12 +33,40 @@ func(readOnly ReadOnly) RunAll(jar,outputFolder string) {
 func (readOnly ReadOnly) singleThreadWarmTests(jar,outputFolder string) {
     execString := "java -jar " + jar
 
-    execString = readOnly.addNumOps(execString, 5000)
+    execString = readOnly.addReadsPerThread(execString, 5000)
     execString = readOnly.addNumThreads(execString, 1)
-    execString = addOperationType(execString,READ_ATOM_NUM_ARG)
+    execString = readOnly.addOperationType(execString,READ_ATOM_NUM)
 
     fmt.Println("\n\n")
     fmt.Println(execString)
     fmt.Println("\n\n")
 }
 
+func (readOnly ReadOnly) addReadsPerThread(execString string, numOps uint32) string {
+    return execString + " " + "-r " + strconv.Itoa(numOps)
+}
+
+func (readOnly ReadOnly) addNumThreads(execString string, numThreads uint32) string {
+    return execString + " " + "-t " + strconv.Itoa(numThreads)
+}
+
+func (readOnly ReadOnly) addOperationType(execString string, op operationType) string {
+
+    if op == READ_ATOM_NUM {
+        return execString + " " + READ_ATOM_NUM_ARG
+    }
+    
+    if op == READ_ATOM_MAP {
+        return execString + " " + READ_ATOM_MAP_ARG
+    }
+
+    if op == READ_MAP {
+        return execString + " " + READ_MAP_ARG
+    }
+    
+    if op == READ_NUM {
+        return execString + " " + READ_NUM_ARG
+    }
+
+    panic("Unknown op in read_only.go")
+}
