@@ -43,11 +43,11 @@ func (readOnly ReadOnly) singleThreadWarmTests(jar,outputFolder string) {
 }
 
 func (readOnly ReadOnly) addReadsPerThread(execString string, numOps uint32) string {
-    return execString + " " + "-r " + strconv.Itoa(numOps)
+    return execString + " " + "-r " + strconv.FormatUint(uint64(numOps),10)
 }
 
 func (readOnly ReadOnly) addNumThreads(execString string, numThreads uint32) string {
-    return execString + " " + "-t " + strconv.Itoa(numThreads)
+    return execString + " " + "-t " + strconv.FormatUint(uint64(numThreads),10)
 }
 
 func (readOnly ReadOnly) addOperationType(execString string, op operationType) string {
