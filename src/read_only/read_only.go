@@ -11,7 +11,6 @@ import "path/filepath"
  Runs all read only performance tests for ralph
  */
 
-const NUM_WARM_OPS = 600000
 const READ_ONLY_JAR_NAME = "read_perf.jar"
 
 type operationType uint32
@@ -41,15 +40,18 @@ func (readOnly ReadOnly) singleThreadWarmTests(jar_dir,outputFolder string) {
     fqJar := filepath.Join(jar_dir,READ_ONLY_JAR_NAME)
 
     for _,numReads := range WARM_TEST_NUM_OPS {
-        argSlice := []string {"-jar",fqJar}
-        argSlice = append(argSlice,readOnly.addReadsPerThread(numReads)...)
-        argSlice = append(argSlice,readOnly.addNumThreads(1)...)
-        argSlice = append(argSlice,readOnly.addOperationType(READ_NUM)...)
-        readOnly.readOnlyJar(argSlice)
+        readOnly.readOnlyJar(fqJar,numReads,1,READ_NUM)
     }
 }
 
-func (readOnly ReadOnly) readOnlyJar (argSlice []string) {
+func (readOnly ReadOnly) readOnlyJar (
+    fqJar string, numReads, numThreads uint32, opType operationType) {
+
+    argSlice := []string {"-jar",fqJar}
+    argSlice = append(argSlice,readOnly.addReadsPerThread(numReads)...)
+    argSlice = append(argSlice,readOnly.addNumThreads(numThreads)...)
+    argSlice = append(argSlice,readOnly.addOperationType(opType)...)
+    
     var out bytes.Buffer    
     cmd := exec.Command("java", argSlice...)
     cmd.Stdout = &out
