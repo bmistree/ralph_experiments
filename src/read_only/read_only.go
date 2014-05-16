@@ -6,6 +6,7 @@ import "os/exec"
 import "log"
 import "bytes"
 import "path/filepath"
+import "strings"
 
 /**
  Runs all read only performance tests for ralph
@@ -45,7 +46,7 @@ func (readOnly ReadOnly) singleThreadWarmTests(jar_dir,outputFolder string) {
 }
 
 func (readOnly ReadOnly) readOnlyJar (
-    fqJar string, numReads, numThreads uint32, opType operationType) {
+    fqJar string, numReads, numThreads uint32, opType operationType) ReadOnlyResult {
 
     argSlice := []string {"-jar",fqJar}
     argSlice = append(argSlice,readOnly.addReadsPerThread(numReads)...)
@@ -59,9 +60,27 @@ func (readOnly ReadOnly) readOnlyJar (
 	if err != nil {
         log.Fatal(err)
 	}
+
+    cmdResult := strings.TrimSpace(out.String())
+    splitResults := strings.Split(cmdResult," ")
+    if len(splitResults) != 2 {
+        log.Fatal("Expected 2 results when splitting")
+    }
+
+    opsPerSecond, err := strconv.ParseFloat(splitResults[1],64)
+    if err != nil {
+        log.Fatal(err)
+    }
     fmt.Println("\n\n")    
-    fmt.Println(out.String())
-    fmt.Println("\n\n")    
+    fmt.Println(opsPerSecond)
+    fmt.Println("\n\n")
+    toReturn := ReadOnlyResult{
+        numReads: numReads,
+        numThreads: numThreads,
+        opType: opType,
+        opsPerSecond: opsPerSecond,
+    }
+    return toReturn
 }
 
 
