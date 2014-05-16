@@ -21,6 +21,9 @@ const (
     READ_NUM
     READ_MAP
 )
+var ALL_OPERATION_TYPES =
+    [4]operationType {READ_ATOM_NUM,READ_NUM,READ_ATOM_MAP,READ_MAP}
+
 
 // Corresponding command line args for operation types
 const READ_ATOM_NUM_ARG = "-an"
