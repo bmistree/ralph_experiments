@@ -4,16 +4,15 @@ import "strconv"
 import "os/exec"
 import "log"
 import "bytes"
-import "path/filepath"
 import "strings"
-import "fmt"
+
 
 /**
  Runs all read only performance tests for ralph
  */
 
 const READ_ONLY_JAR_NAME = "read_perf.jar"
-const READ_WARM_TEST_OUTPUT_NAME = "read_warm.csv"
+
 
 type operationType uint32
 const (
@@ -30,33 +29,12 @@ const READ_NUM_ARG = "-nan"
 const READ_MAP_ARG = "-nam"
 
 const NUM_TIMES_TO_RUN_EACH_EXPERIMENT = 10
-var WARM_TEST_NUM_OPS [6]uint32 =
-    [6]uint32{1000,5000,10000,50000,100000,150000}
 
 type ReadOnly struct {
 }
 
-func(readOnly ReadOnly) RunAll(jar,outputFolder string) {
-    readOnly.singleThreadWarmTests(jar,outputFolder)
-}
-
-func (readOnly ReadOnly) singleThreadWarmTests(jar_dir,outputFolder string) {
-    fqJar := filepath.Join(jar_dir,READ_ONLY_JAR_NAME)
-    fmt.Println("Running warm experiment: ");
-    var results []ReadOnlyResult
-    for i := 0; i < NUM_TIMES_TO_RUN_EACH_EXPERIMENT; i++ {
-        fmt.Println(
-            "\t" + strconv.Itoa(i+1) + " of " +
-            strconv.Itoa(NUM_TIMES_TO_RUN_EACH_EXPERIMENT));
-        for _,numReads := range WARM_TEST_NUM_OPS {
-            results = append(
-                results,readOnly.readOnlyJar(fqJar,numReads,1,READ_NUM))
-        }
-    }
-    
-    // write results to file
-    resultsToFile(
-        results,filepath.Join(outputFolder,READ_WARM_TEST_OUTPUT_NAME))
+func(readOnly* ReadOnly) RunAll(jarDir,outputFolder string) {
+    singleThreadWarmTests(readOnly,jarDir,outputFolder)
 }
 
 func (readOnly ReadOnly) readOnlyJar (
