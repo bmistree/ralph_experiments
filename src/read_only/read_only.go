@@ -1,7 +1,6 @@
 package read_only
 
 import "strconv"
-import "fmt"
 import "os/exec"
 import "log"
 import "bytes"
@@ -13,6 +12,7 @@ import "strings"
  */
 
 const READ_ONLY_JAR_NAME = "read_perf.jar"
+const READ_WARM_TEST_OUTPUT_NAME = "read_warm.csv"
 
 type operationType uint32
 const (
@@ -40,9 +40,14 @@ func(readOnly ReadOnly) RunAll(jar,outputFolder string) {
 func (readOnly ReadOnly) singleThreadWarmTests(jar_dir,outputFolder string) {
     fqJar := filepath.Join(jar_dir,READ_ONLY_JAR_NAME)
 
+    var results []ReadOnlyResult
     for _,numReads := range WARM_TEST_NUM_OPS {
-        readOnly.readOnlyJar(fqJar,numReads,1,READ_NUM)
+        results = append(results,readOnly.readOnlyJar(fqJar,numReads,1,READ_NUM))
     }
+    
+    // write results to file
+    resultsToFile(
+        results,filepath.Join(outputFolder,READ_WARM_TEST_OUTPUT_NAME))
 }
 
 func (readOnly ReadOnly) readOnlyJar (
@@ -71,9 +76,6 @@ func (readOnly ReadOnly) readOnlyJar (
     if err != nil {
         log.Fatal(err)
     }
-    fmt.Println("\n\n")    
-    fmt.Println(opsPerSecond)
-    fmt.Println("\n\n")
     toReturn := ReadOnlyResult{
         numReads: numReads,
         numThreads: numThreads,
