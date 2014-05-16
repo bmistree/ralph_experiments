@@ -6,6 +6,7 @@ import "log"
 import "bytes"
 import "path/filepath"
 import "strings"
+import "fmt"
 
 /**
  Runs all read only performance tests for ralph
@@ -27,6 +28,8 @@ const READ_ATOM_NUM_ARG = "-an"
 const READ_ATOM_MAP_ARG = "-am"
 const READ_NUM_ARG = "-nan"
 const READ_MAP_ARG = "-nam"
+
+const NUM_TIMES_TO_RUN_EACH_EXPERIMENT = 10
 var WARM_TEST_NUM_OPS [6]uint32 =
     [6]uint32{1000,5000,10000,50000,100000,150000}
 
@@ -39,10 +42,16 @@ func(readOnly ReadOnly) RunAll(jar,outputFolder string) {
 
 func (readOnly ReadOnly) singleThreadWarmTests(jar_dir,outputFolder string) {
     fqJar := filepath.Join(jar_dir,READ_ONLY_JAR_NAME)
-
+    fmt.Println("Running warm experiment: ");
     var results []ReadOnlyResult
-    for _,numReads := range WARM_TEST_NUM_OPS {
-        results = append(results,readOnly.readOnlyJar(fqJar,numReads,1,READ_NUM))
+    for i := 0; i < NUM_TIMES_TO_RUN_EACH_EXPERIMENT; i++ {
+        fmt.Println(
+            "\t" + strconv.Itoa(i+1) + " of " +
+            strconv.Itoa(NUM_TIMES_TO_RUN_EACH_EXPERIMENT));
+        for _,numReads := range WARM_TEST_NUM_OPS {
+            results = append(
+                results,readOnly.readOnlyJar(fqJar,numReads,1,READ_NUM))
+        }
     }
     
     // write results to file
