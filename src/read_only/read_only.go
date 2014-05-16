@@ -35,6 +35,7 @@ type ReadOnly struct {
 
 func(readOnly* ReadOnly) RunAll(jarDir,outputFolder string) {
     singleThreadWarmTests(readOnly,jarDir,outputFolder)
+    numThreadsTests(readOnly,jarDir,outputFolder)
 }
 
 func (readOnly ReadOnly) readOnlyJar (
