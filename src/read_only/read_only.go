@@ -5,6 +5,7 @@ import "os/exec"
 import "log"
 import "bytes"
 import "strings"
+import "fmt"
 
 
 /**
@@ -31,7 +32,7 @@ const READ_ATOM_MAP_ARG = "-am"
 const READ_NUM_ARG = "-nan"
 const READ_MAP_ARG = "-nam"
 
-const NUM_TIMES_TO_RUN_EACH_EXPERIMENT = 10
+const NUM_TIMES_TO_RUN_EACH_EXPERIMENT = 2
 
 type ReadOnly struct {
 }
@@ -39,6 +40,36 @@ type ReadOnly struct {
 func(readOnly* ReadOnly) RunAll(jarDir,outputFolder string) {
     singleThreadWarmTests(readOnly,jarDir,outputFolder)
     numThreadsTests(readOnly,jarDir,outputFolder)
+    perfNumThreadsTests(readOnly,jarDir,outputFolder)
+}
+
+func (readOnly ReadOnly) perfReadOnlyJar(
+    fqJar string, numReads, numThreads uint32, opType operationType) ReadOnlyResult {
+    
+    argSlice := []string {"stat","java","-jar",fqJar}
+    argSlice = append(argSlice,readOnly.addReadsPerThread(numReads)...)
+    argSlice = append(argSlice,readOnly.addNumThreads(numThreads)...)
+    argSlice = append(argSlice,readOnly.addOperationType(opType)...)
+    
+    var stdOut bytes.Buffer
+    var stdErr bytes.Buffer
+    cmd := exec.Command("perf", argSlice...)
+    cmd.Stdout = &stdOut
+    cmd.Stderr = &stdErr
+	err := cmd.Run()
+	if err != nil {
+        log.Fatal(err)
+	}
+
+    outputString := stdOut.String()
+    perfStatsString := stdErr.String()
+
+    fmt.Println("\n\n")
+    fmt.Println(perfStatsString)
+    fmt.Println("\n\n")
+
+    return testRunOutputToResults(
+        outputString,numReads,numThreads,opType)
 }
 
 func (readOnly ReadOnly) readOnlyJar (
@@ -56,14 +87,19 @@ func (readOnly ReadOnly) readOnlyJar (
 	if err != nil {
         log.Fatal(err)
 	}
+    return testRunOutputToResults(
+        out.String(),numReads,numThreads,opType)
+}
 
-    cmdResult := strings.TrimSpace(out.String())
+func testRunOutputToResults(
+    cmdResult string,numReads,numThreads uint32, opType operationType) ReadOnlyResult {
     splitResults := strings.Split(cmdResult," ")
     if len(splitResults) != 2 {
         log.Fatal("Expected 2 results when splitting")
     }
 
-    opsPerSecond, err := strconv.ParseFloat(splitResults[1],64)
+    opsPerSecond, err :=
+        strconv.ParseFloat(strings.TrimSpace(splitResults[1]),64)
     if err != nil {
         log.Fatal(err)
     }
@@ -76,6 +112,7 @@ func (readOnly ReadOnly) readOnlyJar (
     return toReturn
 }
 
+    
 
 func (readOnly ReadOnly) addReadsPerThread(numOps uint32) []string {
     
