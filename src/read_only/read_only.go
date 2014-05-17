@@ -2,10 +2,11 @@ package read_only
 
 import "strconv"
 import "os/exec"
+import "os"
 import "bytes"
 import "strings"
 import "common"
-import "fmt"
+import "io/ioutil"
 
 /**
  Runs all read only performance tests for ralph
@@ -31,6 +32,8 @@ const READ_ATOM_MAP_ARG = "-am"
 const READ_NUM_ARG = "-nan"
 const READ_MAP_ARG = "-nam"
 
+const PERF_STAT_OUTPUT_FILENAME = "perf_stats.txt"
+
 const NUM_TIMES_TO_RUN_EACH_EXPERIMENT = 2
 
 type ReadOnly struct {
@@ -44,29 +47,27 @@ func(readOnly* ReadOnly) RunAll(jarDir,outputFolder string) {
 
 func (readOnly ReadOnly) perfReadOnlyJar(
     fqJar string, numReads, numThreads uint32, opType operationType) ReadOnlyResult {
-    
-    argSlice := []string {"stat","java","-jar",fqJar}
+
+    argSlice := []string {"stat","-o",PERF_STAT_OUTPUT_FILENAME,"java","-jar",fqJar}
     argSlice = append(argSlice,readOnly.addReadsPerThread(numReads)...)
     argSlice = append(argSlice,readOnly.addNumThreads(numThreads)...)
     argSlice = append(argSlice,readOnly.addOperationType(opType)...)
 
     var stdOut bytes.Buffer
-    var stdErr bytes.Buffer
     cmd := exec.Command("perf", argSlice...)
     cmd.Stdout = &stdOut
-    cmd.Stderr = &stdErr
 	err := cmd.Run()
 	if err != nil {
         panic(err)
 	}
     
     outputString := stdOut.String()
-    perfStatsString := stdErr.String()
-
-    fmt.Println("\n\n")
-    fmt.Println(outputString)
-    fmt.Println(perfStatsString)
-    fmt.Println("\n\n")
+    perfStatsByteData, err := ioutil.ReadFile(PERF_STAT_OUTPUT_FILENAME)
+    if err != nil {
+        panic(err)
+    }
+    perfStatsString := string(perfStatsByteData[:])
+    os.Remove(PERF_STAT_OUTPUT_FILENAME)
     
     perfOutput := common.ParsePerfOutput(perfStatsString)
     perfOutput.PrintAll()
