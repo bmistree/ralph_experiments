@@ -2,6 +2,7 @@ package read_only
 import "strconv"
 import "io/ioutil"
 
+
 type ReadOnlyResult struct {
     numReads uint32
     numThreads uint32

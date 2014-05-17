@@ -7,8 +7,8 @@ import "strconv"
 const NUM_THREADS_OUTPUT_NAME = "num_threads.csv"
 const PERF_NUM_THREADS_OUTPUT_NAME = "num_threads.csv"
 const NUM_THREADS_TEST_NUM_READS = 100000
-var NUM_THREADS_TEST_NUM_THREADS [4]uint32 = [4]uint32{1,2,5,10}
-
+// var NUM_THREADS_TEST_NUM_THREADS [4]uint32 = [4]uint32{1,2,5,10}
+var NUM_THREADS_TEST_NUM_THREADS [1]uint32 = [1]uint32{1}
 
 func numThreadsTests(readOnly* ReadOnly,jarDir,outputFolder string) {
     outputFilename := filepath.Join(outputFolder,NUM_THREADS_OUTPUT_NAME)
@@ -42,10 +42,10 @@ func commonNumThreadsTests(
 
                 var result ReadOnlyResult
                 if perfTest {
-                    result = readOnly.readOnlyJar(
+                    result = readOnly.perfReadOnlyJar(
                         fqJar,NUM_THREADS_TEST_NUM_READS,numThreads,opType)
                 } else {
-                    result = readOnly.perfReadOnlyJar(
+                    result = readOnly.readOnlyJar(
                         fqJar,NUM_THREADS_TEST_NUM_READS,numThreads,opType)
                 }
                 results = append(results,result)

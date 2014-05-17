@@ -2,11 +2,10 @@ package read_only
 
 import "strconv"
 import "os/exec"
-import "log"
 import "bytes"
 import "strings"
+import "common"
 import "fmt"
-
 
 /**
  Runs all read only performance tests for ralph
@@ -38,8 +37,8 @@ type ReadOnly struct {
 }
 
 func(readOnly* ReadOnly) RunAll(jarDir,outputFolder string) {
-    singleThreadWarmTests(readOnly,jarDir,outputFolder)
-    numThreadsTests(readOnly,jarDir,outputFolder)
+    // singleThreadWarmTests(readOnly,jarDir,outputFolder)
+    // numThreadsTests(readOnly,jarDir,outputFolder)
     perfNumThreadsTests(readOnly,jarDir,outputFolder)
 }
 
@@ -50,7 +49,7 @@ func (readOnly ReadOnly) perfReadOnlyJar(
     argSlice = append(argSlice,readOnly.addReadsPerThread(numReads)...)
     argSlice = append(argSlice,readOnly.addNumThreads(numThreads)...)
     argSlice = append(argSlice,readOnly.addOperationType(opType)...)
-    
+
     var stdOut bytes.Buffer
     var stdErr bytes.Buffer
     cmd := exec.Command("perf", argSlice...)
@@ -58,16 +57,20 @@ func (readOnly ReadOnly) perfReadOnlyJar(
     cmd.Stderr = &stdErr
 	err := cmd.Run()
 	if err != nil {
-        log.Fatal(err)
+        panic(err)
 	}
-
+    
     outputString := stdOut.String()
     perfStatsString := stdErr.String()
 
     fmt.Println("\n\n")
+    fmt.Println(outputString)
     fmt.Println(perfStatsString)
     fmt.Println("\n\n")
-
+    
+    perfOutput := common.ParsePerfOutput(perfStatsString)
+    perfOutput.PrintAll()
+    
     return testRunOutputToResults(
         outputString,numReads,numThreads,opType)
 }
@@ -85,7 +88,7 @@ func (readOnly ReadOnly) readOnlyJar (
     cmd.Stdout = &out
 	err := cmd.Run()
 	if err != nil {
-        log.Fatal(err)
+        panic(err)
 	}
     return testRunOutputToResults(
         out.String(),numReads,numThreads,opType)
@@ -95,13 +98,13 @@ func testRunOutputToResults(
     cmdResult string,numReads,numThreads uint32, opType operationType) ReadOnlyResult {
     splitResults := strings.Split(cmdResult," ")
     if len(splitResults) != 2 {
-        log.Fatal("Expected 2 results when splitting")
+        panic("Expected 2 results when splitting")
     }
 
     opsPerSecond, err :=
         strconv.ParseFloat(strings.TrimSpace(splitResults[1]),64)
     if err != nil {
-        log.Fatal(err)
+        panic(err)
     }
     toReturn := ReadOnlyResult{
         numReads: numReads,
