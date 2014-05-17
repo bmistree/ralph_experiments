@@ -13,7 +13,9 @@ const CYCLES_STRING = "cycles"
 const STALLED_CYCLES_FRONTEND_STRING = "stalled-cycles-frontend"
 const CYCLES_FRONTEND_IDLE_STRING = "% frontend cycles idle"
 const STALLED_CYCLES_BACKEND_STRING = "stalled-cycles-backend"
-const CYCLES_BACKEND_IDLE_STRING = "% backend cycles idle"
+// note: for some reason, perf displays backend cycles idle with
+// additional space.
+const CYCLES_BACKEND_IDLE_STRING = "% backend  cycles idle"
 const INSTRUCTIONS_STRING = "instructions"
 const BRANCHES_STRING = "branches"
 const BRANCH_MISSES_STRING = "branch-misses"
@@ -130,6 +132,11 @@ func ParsePerfOutput(perfOutput string) PerfOutput{
  perfOutput above and category "cycles," would return "2,685,321"
 */
 func findNumberStringInPerfOutput(perfOutput, category string) string {
-    r, _ := regexp.Compile("(\\d+)\\w*" + category)
-    return r.FindString(perfOutput)    
+    r := regexp.MustCompile("([.0-9,]+)\\s*" + category)
+    submatchArray :=  r.FindStringSubmatch(perfOutput)
+    if len(submatchArray) != 2 {
+        panic ("Incorrect number of elements in submatchArray")
+    }
+
+    return submatchArray[1]
 }
