@@ -5,7 +5,7 @@ import "path/filepath"
 import "strconv"
 
 const NUM_THREADS_OUTPUT_NAME = "num_threads.csv"
-const PERF_NUM_THREADS_OUTPUT_NAME = "num_threads.csv"
+const PERF_NUM_THREADS_OUTPUT_NAME = "perf_num_threads.csv"
 const NUM_THREADS_TEST_NUM_READS = 100000
 // var NUM_THREADS_TEST_NUM_THREADS [4]uint32 = [4]uint32{1,2,5,10}
 var NUM_THREADS_TEST_NUM_THREADS [1]uint32 = [1]uint32{1}
@@ -43,10 +43,12 @@ func commonNumThreadsTests(
                 var result ReadOnlyResult
                 if perfTest {
                     result = readOnly.perfReadOnlyJar(
-                        fqJar,NUM_THREADS_TEST_NUM_READS,numThreads,opType)
+                        fqJar,NUM_THREADS_TEST_NUM_READS,numThreads,
+                        opType,0,0)
                 } else {
                     result = readOnly.readOnlyJar(
-                        fqJar,NUM_THREADS_TEST_NUM_READS,numThreads,opType)
+                        fqJar,NUM_THREADS_TEST_NUM_READS,numThreads,
+                        opType,0,0)
                 }
                 results = append(results,result)
             }

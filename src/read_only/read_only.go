@@ -42,17 +42,24 @@ type ReadOnly struct {
 func(readOnly* ReadOnly) RunAll(jarDir,outputFolder string) {
     // singleThreadWarmTests(readOnly,jarDir,outputFolder)
     // numThreadsTests(readOnly,jarDir,outputFolder)
-    perfNumThreadsTests(readOnly,jarDir,outputFolder)
+    // perfNumThreadsTests(readOnly,jarDir,outputFolder)
+    threadPoolSizeTests(readOnly, jarDir,outputFolder)
 }
 
 func (readOnly ReadOnly) perfReadOnlyJar(
-    fqJar string, numReads, numThreads uint32, opType operationType) ReadOnlyResult {
+    fqJar string, numReads, numThreads uint32, opType operationType,
+    persistentThreadPoolSize,maxThreadPoolSize uint32) ReadOnlyResult {
 
     argSlice := []string {"stat","-o",PERF_STAT_OUTPUT_FILENAME,"java","-jar",fqJar}
     argSlice = append(argSlice,readOnly.addReadsPerThread(numReads)...)
     argSlice = append(argSlice,readOnly.addNumThreads(numThreads)...)
     argSlice = append(argSlice,readOnly.addOperationType(opType)...)
-
+    if persistentThreadPoolSize != 0 {
+        threadPoolSizesArgs := readOnly.addThreadPoolSizes(
+            persistentThreadPoolSize,maxThreadPoolSize)
+        argSlice = append(argSlice,threadPoolSizesArgs...)
+    }
+    
     var stdOut bytes.Buffer
     cmd := exec.Command("perf", argSlice...)
     cmd.Stdout = &stdOut
@@ -77,12 +84,19 @@ func (readOnly ReadOnly) perfReadOnlyJar(
 }
 
 func (readOnly ReadOnly) readOnlyJar (
-    fqJar string, numReads, numThreads uint32, opType operationType) ReadOnlyResult {
+    fqJar string, numReads, numThreads uint32, opType operationType,
+    persistentThreadPoolSize,maxThreadPoolSize uint32) ReadOnlyResult {
 
     argSlice := []string {"-jar",fqJar}
     argSlice = append(argSlice,readOnly.addReadsPerThread(numReads)...)
     argSlice = append(argSlice,readOnly.addNumThreads(numThreads)...)
     argSlice = append(argSlice,readOnly.addOperationType(opType)...)
+
+    if persistentThreadPoolSize != 0 {
+        threadPoolSizesArgs := readOnly.addThreadPoolSizes(
+            persistentThreadPoolSize,maxThreadPoolSize)
+        argSlice = append(argSlice,threadPoolSizesArgs...)
+    }
     
     var out bytes.Buffer    
     cmd := exec.Command("java", argSlice...)
@@ -116,7 +130,14 @@ func testRunOutputToResults(
     return toReturn
 }
 
+func (readOnly ReadOnly) addThreadPoolSizes(
+    persistentThreadPoolSize,maxThreadPoolSize uint32) [] string {
     
+    return [] string {
+        "-p",strconv.FormatUint(uint64(persistentThreadPoolSize),10),
+        "-m",strconv.FormatUint(uint64(maxThreadPoolSize),10),
+    }
+}
 
 func (readOnly ReadOnly) addReadsPerThread(numOps uint32) []string {
     
