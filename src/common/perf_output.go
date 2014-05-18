@@ -36,6 +36,17 @@ type PerfOutput struct {
     branchMisses uint64
 }
 
+func (perfOutput* PerfOutput) String() string {
+    return fmt.Sprintf(
+        "%f,%d,%d,%d,%d,%d,%f,%d,%f,%d,%d,%d",
+        perfOutput.cpusUtilized,perfOutput.contextSwitches,
+        perfOutput.cpuMigrations, perfOutput.pageFaults,
+        perfOutput.cycles, perfOutput.stalledCyclesFrontend,
+        perfOutput.frontendCyclesIdle, perfOutput.stalledCyclesBackend,
+        perfOutput.backendCyclesIdle, perfOutput.instructions,
+        perfOutput.branches, perfOutput.branchMisses)
+}
+
 func (perfOutput * PerfOutput) PrintAll() {
     fmt.Println(
         "%s: %f", CPUS_UTILIZED_STRING, perfOutput.cpusUtilized)
