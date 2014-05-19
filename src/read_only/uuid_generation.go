@@ -14,7 +14,7 @@ func uuidGenerationTests(
     fqJar := filepath.Join(jarDir,READ_ONLY_JAR_NAME)
     fmt.Println("Running uuid generation tests: ")
     
-    var results []ReadOnlyResult
+    var results [] * ReadOnlyResult
     for i := 0; i < NUM_TIMES_TO_RUN_EACH_EXPERIMENT; i++ {
         fmt.Println(
             "\t" + strconv.Itoa(i+1) + " of " +

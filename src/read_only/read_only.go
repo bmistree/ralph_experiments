@@ -47,12 +47,20 @@ func(readOnly* ReadOnly) RunAll(jarDir,outputFolder string) {
     uuidGenerationTests(readOnly, jarDir,outputFolder)
 }
 
-func (readOnly ReadOnly) perfReadOnlyJar(
-    fqJar string, numReads, numThreads uint32, opType operationType,
+func (readOnly* ReadOnly) commonReadOnlyJar(
+    perfOn bool, fqJar string, numReads, numThreads uint32, opType operationType,
     persistentThreadPoolSize,maxThreadPoolSize uint32,
-    atomIntUUIDGeneration bool) ReadOnlyResult {
+    atomIntUUIDGeneration bool) *ReadOnlyResult {
 
-    argSlice := []string {"stat","-o",PERF_STAT_OUTPUT_FILENAME,"java","-jar",fqJar}
+    var argSlice [] string
+    
+    if perfOn {
+        argSlice = append(
+            argSlice,
+            []string{"stat","-o",PERF_STAT_OUTPUT_FILENAME,"java"}...)
+    }
+
+    argSlice = append(argSlice,[]string{"-jar",fqJar}...)
     argSlice = append(argSlice,readOnly.addReadsPerThread(numReads)...)
     argSlice = append(argSlice,readOnly.addNumThreads(numThreads)...)
     argSlice = append(argSlice,readOnly.addOperationType(opType)...)
@@ -66,60 +74,63 @@ func (readOnly ReadOnly) perfReadOnlyJar(
     }
     
     var stdOut bytes.Buffer
-    cmd := exec.Command("perf", argSlice...)
+    var cmd * exec.Cmd = nil
+    
+    if perfOn {
+        cmd = exec.Command("perf", argSlice...)
+    } else {
+        cmd = exec.Command("java", argSlice...)
+    }
     cmd.Stdout = &stdOut
 	err := cmd.Run()
 	if err != nil {
         panic(err)
 	}
-    
+    // get number of ops from stdout
     outputString := stdOut.String()
-    perfStatsByteData, err := ioutil.ReadFile(PERF_STAT_OUTPUT_FILENAME)
-    if err != nil {
-        panic(err)
+
+    // get results from perf
+    var perfOutput * common.PerfOutput = nil
+    if perfOn {
+        perfStatsByteData, err := ioutil.ReadFile(PERF_STAT_OUTPUT_FILENAME)
+        if err != nil {
+            panic(err)
+        }
+        perfStatsString := string(perfStatsByteData[:])
+        os.Remove(PERF_STAT_OUTPUT_FILENAME)
+    
+        perfOutput := common.ParsePerfOutput(perfStatsString)
+        perfOutput.PrintAll()
     }
-    perfStatsString := string(perfStatsByteData[:])
-    os.Remove(PERF_STAT_OUTPUT_FILENAME)
-    
-    perfOutput := common.ParsePerfOutput(perfStatsString)
-    perfOutput.PrintAll()
-    
+
+    // returns read only resutls
     return testRunOutputToResults(
-        outputString,numReads,numThreads,opType)
+        outputString,numReads,numThreads,opType,perfOutput)
+}
+
+func (readOnly * ReadOnly) perfReadOnlyJar(
+    fqJar string, numReads, numThreads uint32, opType operationType,
+    persistentThreadPoolSize,maxThreadPoolSize uint32,
+    atomIntUUIDGeneration bool) * ReadOnlyResult {
+
+    return readOnly.commonReadOnlyJar(
+        true, fqJar, numReads, numThreads, opType,persistentThreadPoolSize,
+        maxThreadPoolSize,atomIntUUIDGeneration)
 }
 
 func (readOnly ReadOnly) readOnlyJar (
     fqJar string, numReads, numThreads uint32, opType operationType,
     persistentThreadPoolSize,maxThreadPoolSize uint32,
-    atomIntUUIDGeneration bool) ReadOnlyResult {
+    atomIntUUIDGeneration bool) * ReadOnlyResult {
 
-    argSlice := []string {"-jar",fqJar}
-    argSlice = append(argSlice,readOnly.addReadsPerThread(numReads)...)
-    argSlice = append(argSlice,readOnly.addNumThreads(numThreads)...)
-    argSlice = append(argSlice,readOnly.addOperationType(opType)...)
-
-    if persistentThreadPoolSize != 0 {
-        threadPoolSizesArgs := readOnly.addThreadPoolSizes(
-            persistentThreadPoolSize,maxThreadPoolSize)
-        argSlice = append(argSlice,threadPoolSizesArgs...)
-    }
-    if atomIntUUIDGeneration {
-        argSlice = append(argSlice,"-a")
-    }
-    
-    var out bytes.Buffer    
-    cmd := exec.Command("java", argSlice...)
-    cmd.Stdout = &out
-	err := cmd.Run()
-	if err != nil {
-        panic(err)
-	}
-    return testRunOutputToResults(
-        out.String(),numReads,numThreads,opType)
+    return readOnly.commonReadOnlyJar(
+        false, fqJar, numReads, numThreads, opType,persistentThreadPoolSize,
+        maxThreadPoolSize,atomIntUUIDGeneration)
 }
 
 func testRunOutputToResults(
-    cmdResult string,numReads,numThreads uint32, opType operationType) ReadOnlyResult {
+    cmdResult string,numReads,numThreads uint32, opType operationType,
+    perfOutput * common.PerfOutput) * ReadOnlyResult {
     splitResults := strings.Split(cmdResult," ")
     if len(splitResults) != 2 {
         panic("Expected 2 results when splitting")
@@ -130,11 +141,12 @@ func testRunOutputToResults(
     if err != nil {
         panic(err)
     }
-    toReturn := ReadOnlyResult{
+    toReturn := &ReadOnlyResult{
         numReads: numReads,
         numThreads: numThreads,
         opType: opType,
         opsPerSecond: opsPerSecond,
+        perfOutput: perfOutput,
     }
     return toReturn
 }

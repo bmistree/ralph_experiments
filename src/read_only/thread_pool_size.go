@@ -18,7 +18,7 @@ func threadPoolSizeTests(readOnly* ReadOnly, jarDir,outputFolder string) {
     fqJar := filepath.Join(jarDir,READ_ONLY_JAR_NAME)
     fmt.Println("Running thread pool size experiment: ")
     
-    var results []ReadOnlyResult
+    var results [] * ReadOnlyResult
     for i := 0; i < NUM_TIMES_TO_RUN_EACH_EXPERIMENT; i++ {
         fmt.Println(
             "\t" + strconv.Itoa(i+1) + " of " +

@@ -22,59 +22,59 @@ const BRANCH_MISSES_STRING = "branch-misses"
 
 
 type PerfOutput struct {
-    cpusUtilized float64
-    contextSwitches uint64
-    cpuMigrations uint64
-    pageFaults uint64
-    cycles uint64
-    stalledCyclesFrontend uint64
-    frontendCyclesIdle float64
-    stalledCyclesBackend uint64
-    backendCyclesIdle float64
-    instructions uint64
-    branches uint64
-    branchMisses uint64
+    CpusUtilized float64
+    ContextSwitches uint64
+    CpuMigrations uint64
+    PageFaults uint64
+    Cycles uint64
+    StalledCyclesFrontend uint64
+    FrontendCyclesIdle float64
+    StalledCyclesBackend uint64
+    BackendCyclesIdle float64
+    Instructions uint64
+    Branches uint64
+    BranchMisses uint64
 }
 
 func (perfOutput* PerfOutput) String() string {
     return fmt.Sprintf(
         "%f,%d,%d,%d,%d,%d,%f,%d,%f,%d,%d,%d",
-        perfOutput.cpusUtilized,perfOutput.contextSwitches,
-        perfOutput.cpuMigrations, perfOutput.pageFaults,
-        perfOutput.cycles, perfOutput.stalledCyclesFrontend,
-        perfOutput.frontendCyclesIdle, perfOutput.stalledCyclesBackend,
-        perfOutput.backendCyclesIdle, perfOutput.instructions,
-        perfOutput.branches, perfOutput.branchMisses)
+        perfOutput.CpusUtilized,perfOutput.ContextSwitches,
+        perfOutput.CpuMigrations, perfOutput.PageFaults,
+        perfOutput.Cycles, perfOutput.StalledCyclesFrontend,
+        perfOutput.FrontendCyclesIdle, perfOutput.StalledCyclesBackend,
+        perfOutput.BackendCyclesIdle, perfOutput.Instructions,
+        perfOutput.Branches, perfOutput.BranchMisses)
 }
 
 func (perfOutput * PerfOutput) PrintAll() {
     fmt.Println(
-        "%s: %f", CPUS_UTILIZED_STRING, perfOutput.cpusUtilized)
+        "%s: %f", CPUS_UTILIZED_STRING, perfOutput.CpusUtilized)
     fmt.Println(
-        "%s: %d", CONTEXT_SWITCHES_STRING, perfOutput.contextSwitches)
+        "%s: %d", CONTEXT_SWITCHES_STRING, perfOutput.ContextSwitches)
     fmt.Println(
-        "%s: %d", CPU_MIGRATIONS_STRING, perfOutput.cpuMigrations)
+        "%s: %d", CPU_MIGRATIONS_STRING, perfOutput.CpuMigrations)
     fmt.Println(
-        "%s: %d", PAGE_FAULTS_STRING, perfOutput.pageFaults)
+        "%s: %d", PAGE_FAULTS_STRING, perfOutput.PageFaults)
     fmt.Println(
-        "%s: %d", CYCLES_STRING, perfOutput.cycles)
+        "%s: %d", CYCLES_STRING, perfOutput.Cycles)
     fmt.Println(
-        "%s: %d", STALLED_CYCLES_FRONTEND_STRING, perfOutput.stalledCyclesFrontend)
+        "%s: %d", STALLED_CYCLES_FRONTEND_STRING, perfOutput.StalledCyclesFrontend)
     fmt.Println(
-        "%s: %f", CYCLES_FRONTEND_IDLE_STRING, perfOutput.frontendCyclesIdle)
+        "%s: %f", CYCLES_FRONTEND_IDLE_STRING, perfOutput.FrontendCyclesIdle)
     fmt.Println(
-        "%s: %d", STALLED_CYCLES_BACKEND_STRING, perfOutput.stalledCyclesBackend)
+        "%s: %d", STALLED_CYCLES_BACKEND_STRING, perfOutput.StalledCyclesBackend)
     fmt.Println(
-        "%s: %f", CYCLES_BACKEND_IDLE_STRING, perfOutput.backendCyclesIdle)
+        "%s: %f", CYCLES_BACKEND_IDLE_STRING, perfOutput.BackendCyclesIdle)
     fmt.Println(
-        "%s: %d", INSTRUCTIONS_STRING, perfOutput.instructions)
+        "%s: %d", INSTRUCTIONS_STRING, perfOutput.Instructions)
     fmt.Println(
-        "%s: %d", BRANCHES_STRING, perfOutput.branches)
+        "%s: %d", BRANCHES_STRING, perfOutput.Branches)
     fmt.Println(
-        "%s: %d", BRANCH_MISSES_STRING, perfOutput.branchMisses)
+        "%s: %d", BRANCH_MISSES_STRING, perfOutput.BranchMisses)
 }
 
-func ParsePerfOutput(perfOutput string) PerfOutput{
+func ParsePerfOutput(perfOutput string) * PerfOutput{
     cpusUtilized, _err1 := strconv.ParseFloat(
         findNumberStringInPerfOutput(perfOutput,CPUS_UTILIZED_STRING),64)
     contextSwitches, _err2 := strconv.ParseUint(
@@ -108,21 +108,21 @@ func ParsePerfOutput(perfOutput string) PerfOutput{
     }
      
     toReturn := PerfOutput {
-        cpusUtilized: cpusUtilized,
-        contextSwitches: contextSwitches,
-        cpuMigrations: cpuMigrations,
-        pageFaults: pageFaults,
-        cycles: cycles,
-        stalledCyclesFrontend: stalledCyclesFrontend,
-        frontendCyclesIdle: frontendCyclesIdle,
-        stalledCyclesBackend: stalledCyclesBackend,
-        backendCyclesIdle: backendCyclesIdle,
-        instructions: instructions,
-        branches: branches,
-        branchMisses: branchMisses,
+        CpusUtilized: cpusUtilized,
+        ContextSwitches: contextSwitches,
+        CpuMigrations: cpuMigrations,
+        PageFaults: pageFaults,
+        Cycles: cycles,
+        StalledCyclesFrontend: stalledCyclesFrontend,
+        FrontendCyclesIdle: frontendCyclesIdle,
+        StalledCyclesBackend: stalledCyclesBackend,
+        BackendCyclesIdle: backendCyclesIdle,
+        Instructions: instructions,
+        Branches: branches,
+        BranchMisses: branchMisses,
     }
     
-    return toReturn
+    return &toReturn
 }
 
 

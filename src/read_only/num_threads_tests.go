@@ -30,7 +30,7 @@ func commonNumThreadsTests(
         fmt.Println("Running num threads experiment: ")
     }
     
-    var results []ReadOnlyResult
+    var results [] * ReadOnlyResult
     for i := 0; i < NUM_TIMES_TO_RUN_EACH_EXPERIMENT; i++ {
         fmt.Println(
             "\t" + strconv.Itoa(i+1) + " of " +
@@ -40,7 +40,7 @@ func commonNumThreadsTests(
             // try thread size tests across all operation types
             for _, opType := range ALL_OPERATION_TYPES {
 
-                var result ReadOnlyResult
+                var result *ReadOnlyResult
                 if perfTest {
                     result = readOnly.perfReadOnlyJar(
                         fqJar,NUM_THREADS_TEST_NUM_READS,numThreads,

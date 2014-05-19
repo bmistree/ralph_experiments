@@ -11,7 +11,7 @@ var WARM_TEST_NUM_OPS [6]uint32 =
 func singleThreadWarmTests(readOnly* ReadOnly,jarDir,outputFolder string) {
     fqJar := filepath.Join(jarDir,READ_ONLY_JAR_NAME)
     fmt.Println("Running warm experiment: ");
-    var results []ReadOnlyResult
+    var results []*ReadOnlyResult
     for i := 0; i < NUM_TIMES_TO_RUN_EACH_EXPERIMENT; i++ {
         fmt.Println(
             "\t" + strconv.Itoa(i+1) + " of " +
