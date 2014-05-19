@@ -7,28 +7,43 @@ import "strconv"
 const NUM_THREADS_OUTPUT_NAME = "num_threads.csv"
 const PERF_NUM_THREADS_OUTPUT_NAME = "perf_num_threads.csv"
 const GC_OFF_PERF_NUM_THREADS_OUTPUT_NAME = "gc_off_perf_num_threads.csv"
+const LOCKS_OFF_PERF_NUM_THREADS_OUTPUT_NAME = "locks_off_perf_num_threads.csv"
 const NUM_THREADS_TEST_NUM_READS = 100000
 // var NUM_THREADS_TEST_NUM_THREADS [4]uint32 = [4]uint32{1,2,5,10}
 var NUM_THREADS_TEST_NUM_THREADS [1]uint32 = [1]uint32{1}
 
 func numThreadsTests(readOnly* ReadOnly,jarDir,outputFolder string) {
     outputFilename := filepath.Join(outputFolder,NUM_THREADS_OUTPUT_NAME)
-    commonNumThreadsTests(readOnly,jarDir,outputFilename,false,true)
+    fqJar := filepath.Join(jarDir,READ_ONLY_JAR_NAME)
+    commonNumThreadsTests(readOnly,fqJar,outputFilename,false,true)
 }
 
 func perfNumThreadsTests(readOnly* ReadOnly,jarDir,outputFolder string) {
     outputFilename := filepath.Join(outputFolder,PERF_NUM_THREADS_OUTPUT_NAME)
-    commonNumThreadsTests(readOnly,jarDir,outputFilename,true,true)
+    fqJar := filepath.Join(jarDir,READ_ONLY_JAR_NAME)
+    commonNumThreadsTests(readOnly,fqJar,outputFilename,true,true)
 }
 
-func perfGCOffNumThreadsTests(readOnly* ReadOnly,jarDir,outputFolder string) {
+func perfGCOffNumThreadsTests(
+    readOnly* ReadOnly,jarDir,outputFolder string) {
+
     outputFilename := filepath.Join(outputFolder,GC_OFF_PERF_NUM_THREADS_OUTPUT_NAME)
-    commonNumThreadsTests(readOnly,jarDir,outputFilename,true,false)
+    fqJar := filepath.Join(jarDir,READ_ONLY_JAR_NAME)
+    commonNumThreadsTests(readOnly,fqJar,outputFilename,true,false)
+}
+
+func perfLocksOffNumThreadsTests(
+    readOnly* ReadOnly,jarDir,outputFolder string) {
+
+    outputFilename :=
+        filepath.Join(outputFolder,LOCKS_OFF_PERF_NUM_THREADS_OUTPUT_NAME)
+    fqJar := filepath.Join(jarDir,LOCKS_OFF_READ_ONLY_JAR_NAME)
+    commonNumThreadsTests(readOnly,fqJar,outputFilename,true,false)
 }
 
 func commonNumThreadsTests(
-    readOnly* ReadOnly,jarDir,outputFilename string, perfTest, gcOn bool) {
-    fqJar := filepath.Join(jarDir,READ_ONLY_JAR_NAME)
+    readOnly* ReadOnly,fqJar,outputFilename string, perfTest, gcOn bool) {
+
     if perfTest {
         fmt.Println("Running perf num threads experiment: ")
     } else {

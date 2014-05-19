@@ -13,6 +13,7 @@ import "io/ioutil"
  */
 
 const READ_ONLY_JAR_NAME = "read_perf.jar"
+const LOCKS_OFF_READ_ONLY_JAR_NAME = "locks_off_read_perf.jar"
 
 
 type operationType uint32
@@ -52,6 +53,7 @@ func(readOnly* ReadOnly) RunAll(jarDir,outputFolder string) {
     // numThreadsTests(readOnly,jarDir,outputFolder)
     // perfNumThreadsTests(readOnly,jarDir,outputFolder)
     // perfGCOffNumThreadsTests(readOnly,jarDir,outputFolder)
+    perfLocksOffNumThreadsTests(readOnly,jarDir,outputFolder)
     // threadPoolSizeTests(readOnly, jarDir,outputFolder)
     // uuidGenerationTests(readOnly, jarDir,outputFolder)
     memLeakTests(readOnly,jarDir,outputFolder)
