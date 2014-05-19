@@ -43,8 +43,9 @@ func(readOnly* ReadOnly) RunAll(jarDir,outputFolder string) {
     // singleThreadWarmTests(readOnly,jarDir,outputFolder)
     // numThreadsTests(readOnly,jarDir,outputFolder)
     // perfNumThreadsTests(readOnly,jarDir,outputFolder)
-    threadPoolSizeTests(readOnly, jarDir,outputFolder)
-    uuidGenerationTests(readOnly, jarDir,outputFolder)
+    // threadPoolSizeTests(readOnly, jarDir,outputFolder)
+    // uuidGenerationTests(readOnly, jarDir,outputFolder)
+    memLeakTests(readOnly,jarDir,outputFolder)
 }
 
 func (readOnly* ReadOnly) commonReadOnlyJar(
