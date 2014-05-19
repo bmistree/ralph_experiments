@@ -24,7 +24,7 @@ const (
     READ_MAP
 )
 var ALL_OPERATION_TYPES =
-    [4]operationType {READ_ATOM_NUM,READ_NUM,READ_ATOM_MAP,READ_MAP}
+    []operationType {READ_ATOM_NUM,READ_NUM,READ_ATOM_MAP,READ_MAP}
 
 
 // For gc off experiments, need to be able to run with such a large

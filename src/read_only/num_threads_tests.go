@@ -15,21 +15,26 @@ var NUM_THREADS_TEST_NUM_THREADS [1]uint32 = [1]uint32{1}
 func numThreadsTests(readOnly* ReadOnly,jarDir,outputFolder string) {
     outputFilename := filepath.Join(outputFolder,NUM_THREADS_OUTPUT_NAME)
     fqJar := filepath.Join(jarDir,READ_ONLY_JAR_NAME)
-    commonNumThreadsTests(readOnly,fqJar,outputFilename,false,true)
+    commonNumThreadsTests(
+        readOnly,fqJar,outputFilename,false,true,ALL_OPERATION_TYPES)
 }
 
 func perfNumThreadsTests(readOnly* ReadOnly,jarDir,outputFolder string) {
     outputFilename := filepath.Join(outputFolder,PERF_NUM_THREADS_OUTPUT_NAME)
     fqJar := filepath.Join(jarDir,READ_ONLY_JAR_NAME)
-    commonNumThreadsTests(readOnly,fqJar,outputFilename,true,true)
+    commonNumThreadsTests(
+        readOnly,fqJar,outputFilename,true,true,ALL_OPERATION_TYPES)
 }
 
 func perfGCOffNumThreadsTests(
     readOnly* ReadOnly,jarDir,outputFolder string) {
 
-    outputFilename := filepath.Join(outputFolder,GC_OFF_PERF_NUM_THREADS_OUTPUT_NAME)
+    outputFilename :=
+        filepath.Join(outputFolder,GC_OFF_PERF_NUM_THREADS_OUTPUT_NAME)
     fqJar := filepath.Join(jarDir,READ_ONLY_JAR_NAME)
-    commonNumThreadsTests(readOnly,fqJar,outputFilename,true,false)
+    commonNumThreadsTests(
+        readOnly,fqJar,outputFilename,true,false,
+        []operationType{READ_ATOM_NUM})
 }
 
 func perfLocksOffNumThreadsTests(
@@ -38,11 +43,14 @@ func perfLocksOffNumThreadsTests(
     outputFilename :=
         filepath.Join(outputFolder,LOCKS_OFF_PERF_NUM_THREADS_OUTPUT_NAME)
     fqJar := filepath.Join(jarDir,LOCKS_OFF_READ_ONLY_JAR_NAME)
-    commonNumThreadsTests(readOnly,fqJar,outputFilename,true,false)
+    commonNumThreadsTests(
+        readOnly,fqJar,outputFilename,true,false,
+        []operationType{READ_ATOM_NUM})
 }
 
 func commonNumThreadsTests(
-    readOnly* ReadOnly,fqJar,outputFilename string, perfTest, gcOn bool) {
+    readOnly* ReadOnly,fqJar,outputFilename string, perfTest,
+    gcOn bool, opsToRun []operationType) {
 
     if perfTest {
         fmt.Println("Running perf num threads experiment: ")
@@ -58,7 +66,7 @@ func commonNumThreadsTests(
         
         for _,numThreads := range NUM_THREADS_TEST_NUM_THREADS {
             // try thread size tests across all operation types
-            for _, opType := range ALL_OPERATION_TYPES {
+            for _, opType := range opsToRun {
 
                 var result *ReadOnlyResult
                 if perfTest {
