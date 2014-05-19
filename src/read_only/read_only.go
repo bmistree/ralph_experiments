@@ -26,6 +26,13 @@ var ALL_OPERATION_TYPES =
     [4]operationType {READ_ATOM_NUM,READ_NUM,READ_ATOM_MAP,READ_MAP}
 
 
+// For gc off experiments, need to be able to run with such a large
+// heap that garbage collection will be turned off.
+const GC_OFF_MIN_HEAP_SIZE_FLAG = "-Xms"
+const GC_OFF_MIN_HEAP_SIZE_VAL = "1000m"
+const GC_OFF_MAX_HEAP_SIZE_FLAG = "-Xmx"
+const GC_OFF_MAX_HEAP_SIZE_VAL = "1000m"
+
 // Corresponding command line args for operation types
 const READ_ATOM_NUM_ARG = "-an"
 const READ_ATOM_MAP_ARG = "-am"
@@ -33,8 +40,9 @@ const READ_NUM_ARG = "-nan"
 const READ_MAP_ARG = "-nam"
 
 const PERF_STAT_OUTPUT_FILENAME = "perf_stats.txt"
-
 const NUM_TIMES_TO_RUN_EACH_EXPERIMENT = 2
+
+
 
 type ReadOnly struct {
 }
@@ -43,6 +51,7 @@ func(readOnly* ReadOnly) RunAll(jarDir,outputFolder string) {
     // singleThreadWarmTests(readOnly,jarDir,outputFolder)
     // numThreadsTests(readOnly,jarDir,outputFolder)
     // perfNumThreadsTests(readOnly,jarDir,outputFolder)
+    // perfGCOffNumThreadsTests(readOnly,jarDir,outputFolder)
     // threadPoolSizeTests(readOnly, jarDir,outputFolder)
     // uuidGenerationTests(readOnly, jarDir,outputFolder)
     memLeakTests(readOnly,jarDir,outputFolder)
@@ -51,7 +60,7 @@ func(readOnly* ReadOnly) RunAll(jarDir,outputFolder string) {
 func (readOnly* ReadOnly) commonReadOnlyJar(
     perfOn bool, fqJar string, numReads, numThreads uint32, opType operationType,
     persistentThreadPoolSize,maxThreadPoolSize uint32,
-    atomIntUUIDGeneration bool) *ReadOnlyResult {
+    atomIntUUIDGeneration, gcOn bool) *ReadOnlyResult {
 
     var argSlice [] string
     
@@ -61,6 +70,15 @@ func (readOnly* ReadOnly) commonReadOnlyJar(
             []string{"stat","-o",PERF_STAT_OUTPUT_FILENAME,"java"}...)
     }
 
+    if !gcOn {
+        argSlice = append(
+            argSlice,
+            []string{GC_OFF_MIN_HEAP_SIZE_FLAG,GC_OFF_MIN_HEAP_SIZE_VAL}...)
+        argSlice = append(
+            argSlice,
+            []string{GC_OFF_MAX_HEAP_SIZE_FLAG,GC_OFF_MAX_HEAP_SIZE_VAL}...)
+    }
+    
     argSlice = append(argSlice,[]string{"-jar",fqJar}...)
     argSlice = append(argSlice,readOnly.addReadsPerThread(numReads)...)
     argSlice = append(argSlice,readOnly.addNumThreads(numThreads)...)
@@ -116,7 +134,21 @@ func (readOnly * ReadOnly) perfReadOnlyJar(
 
     return readOnly.commonReadOnlyJar(
         true, fqJar, numReads, numThreads, opType,persistentThreadPoolSize,
-        maxThreadPoolSize,atomIntUUIDGeneration)
+        maxThreadPoolSize,atomIntUUIDGeneration,true)
+}
+
+/**
+Cannot really run gc off, but can set maximum heap size to be so
+high that gc is unlikely to run.
+*/
+func (readOnly * ReadOnly) perfReadOnlyJarGCOff(
+    fqJar string, numReads, numThreads uint32, opType operationType,
+    persistentThreadPoolSize,maxThreadPoolSize uint32,
+    atomIntUUIDGeneration bool) * ReadOnlyResult {
+
+    return readOnly.commonReadOnlyJar(
+        false, fqJar, numReads, numThreads, opType,persistentThreadPoolSize,
+        maxThreadPoolSize,atomIntUUIDGeneration,false)
 }
 
 func (readOnly ReadOnly) readOnlyJar (
@@ -126,7 +158,7 @@ func (readOnly ReadOnly) readOnlyJar (
 
     return readOnly.commonReadOnlyJar(
         false, fqJar, numReads, numThreads, opType,persistentThreadPoolSize,
-        maxThreadPoolSize,atomIntUUIDGeneration)
+        maxThreadPoolSize,atomIntUUIDGeneration,true)
 }
 
 func testRunOutputToResults(
