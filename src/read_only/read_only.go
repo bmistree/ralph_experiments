@@ -44,11 +44,13 @@ func(readOnly* ReadOnly) RunAll(jarDir,outputFolder string) {
     // numThreadsTests(readOnly,jarDir,outputFolder)
     // perfNumThreadsTests(readOnly,jarDir,outputFolder)
     threadPoolSizeTests(readOnly, jarDir,outputFolder)
+    uuidGenerationTests(readOnly, jarDir,outputFolder)
 }
 
 func (readOnly ReadOnly) perfReadOnlyJar(
     fqJar string, numReads, numThreads uint32, opType operationType,
-    persistentThreadPoolSize,maxThreadPoolSize uint32) ReadOnlyResult {
+    persistentThreadPoolSize,maxThreadPoolSize uint32,
+    atomIntUUIDGeneration bool) ReadOnlyResult {
 
     argSlice := []string {"stat","-o",PERF_STAT_OUTPUT_FILENAME,"java","-jar",fqJar}
     argSlice = append(argSlice,readOnly.addReadsPerThread(numReads)...)
@@ -58,6 +60,9 @@ func (readOnly ReadOnly) perfReadOnlyJar(
         threadPoolSizesArgs := readOnly.addThreadPoolSizes(
             persistentThreadPoolSize,maxThreadPoolSize)
         argSlice = append(argSlice,threadPoolSizesArgs...)
+    }
+    if atomIntUUIDGeneration {
+        argSlice = append(argSlice,"-a")
     }
     
     var stdOut bytes.Buffer
@@ -85,7 +90,8 @@ func (readOnly ReadOnly) perfReadOnlyJar(
 
 func (readOnly ReadOnly) readOnlyJar (
     fqJar string, numReads, numThreads uint32, opType operationType,
-    persistentThreadPoolSize,maxThreadPoolSize uint32) ReadOnlyResult {
+    persistentThreadPoolSize,maxThreadPoolSize uint32,
+    atomIntUUIDGeneration bool) ReadOnlyResult {
 
     argSlice := []string {"-jar",fqJar}
     argSlice = append(argSlice,readOnly.addReadsPerThread(numReads)...)
@@ -96,6 +102,9 @@ func (readOnly ReadOnly) readOnlyJar (
         threadPoolSizesArgs := readOnly.addThreadPoolSizes(
             persistentThreadPoolSize,maxThreadPoolSize)
         argSlice = append(argSlice,threadPoolSizesArgs...)
+    }
+    if atomIntUUIDGeneration {
+        argSlice = append(argSlice,"-a")
     }
     
     var out bytes.Buffer    

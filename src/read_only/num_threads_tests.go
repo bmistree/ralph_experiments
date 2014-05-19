@@ -44,11 +44,11 @@ func commonNumThreadsTests(
                 if perfTest {
                     result = readOnly.perfReadOnlyJar(
                         fqJar,NUM_THREADS_TEST_NUM_READS,numThreads,
-                        opType,0,0)
+                        opType,0,0,false)
                 } else {
                     result = readOnly.readOnlyJar(
                         fqJar,NUM_THREADS_TEST_NUM_READS,numThreads,
-                        opType,0,0)
+                        opType,0,0,false)
                 }
                 results = append(results,result)
             }
