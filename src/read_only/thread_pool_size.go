@@ -35,4 +35,7 @@ func threadPoolSizeTests(readOnly* ReadOnly, jarDir,outputFolder string) {
             }
         }
     }
+    // write results to file
+    resultsToFile(
+        results,filepath.Join(outputFolder,THREAD_POOL_SIZE_OUTPUT_NAME))
 }

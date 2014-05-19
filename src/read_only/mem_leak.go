@@ -37,4 +37,8 @@ func memLeakTests(readOnly* ReadOnly, jarDir,outputFolder string) {
             results = append(results,result)
         }
     }
+
+    // write results to file
+    resultsToFile(
+        results,filepath.Join(outputFolder,MEM_LEAK_OUTPUT_NAME))
 }

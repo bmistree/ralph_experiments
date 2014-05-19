@@ -32,4 +32,7 @@ func uuidGenerationTests(
             UUID_GENERATION_OP_TYPE,0,0,true)
         results = append(results,result)
     }
+    // write results to file
+    resultsToFile(
+        results,filepath.Join(outputFolder,UUID_GENERATION_OUTPUT_NAME))
 }
