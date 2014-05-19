@@ -20,7 +20,7 @@ func memLeakTests(readOnly* ReadOnly, jarDir,outputFolder string) {
     // baseline
     baselineResult := readOnly.perfReadOnlyJar(
         fqJar,MEM_LEAK_SINGLE_THREAD_NUM_READS,2,
-        MEM_LEAK_OP_TYPE,0,0,false)
+        MEM_LEAK_OP_TYPE,0,0,false,false)
     
     results = append(results,baselineResult)
     
@@ -33,7 +33,7 @@ func memLeakTests(readOnly* ReadOnly, jarDir,outputFolder string) {
         for _, numOpsMultiplier := range MEM_LEAK_MULTIPLE_DURATIONS_TO_RUN {
             totalNumOps := numOpsMultiplier * MEM_LEAK_SINGLE_THREAD_NUM_READS
             result := readOnly.perfReadOnlyJar(
-                fqJar,totalNumOps,1,THREAD_POOL_SIZE_OP_TYPE,0,0,false)
+                fqJar,totalNumOps,1,THREAD_POOL_SIZE_OP_TYPE,0,0,false,false)
             results = append(results,result)
         }
     }

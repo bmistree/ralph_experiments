@@ -23,13 +23,13 @@ func uuidGenerationTests(
         // with standard uuid generation
         result := readOnly.perfReadOnlyJar(
             fqJar,UUID_GENERATION_TEST_NUM_READS,1,
-            UUID_GENERATION_OP_TYPE,0,0,false)
+            UUID_GENERATION_OP_TYPE,0,0,false,false)
         results = append(results,result)
 
         // with atomic number uuid generation
         result = readOnly.perfReadOnlyJar(
             fqJar,UUID_GENERATION_TEST_NUM_READS,1,
-            UUID_GENERATION_OP_TYPE,0,0,true)
+            UUID_GENERATION_OP_TYPE,0,0,true,false)
         results = append(results,result)
     }
     // write results to file

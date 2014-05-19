@@ -54,6 +54,7 @@ func(readOnly* ReadOnly) RunAll(jarDir,outputFolder string) {
     // perfNumThreadsTests(readOnly,jarDir,outputFolder)
     // perfGCOffNumThreadsTests(readOnly,jarDir,outputFolder)
     perfLocksOffNumThreadsTests(readOnly,jarDir,outputFolder)
+    perfWoundWaitNumThreadsTests(readOnly,jarDir,outputFolder)
     // threadPoolSizeTests(readOnly, jarDir,outputFolder)
     // uuidGenerationTests(readOnly, jarDir,outputFolder)
     memLeakTests(readOnly,jarDir,outputFolder)
@@ -62,7 +63,7 @@ func(readOnly* ReadOnly) RunAll(jarDir,outputFolder string) {
 func (readOnly* ReadOnly) commonReadOnlyJar(
     perfOn bool, fqJar string, numReads, numThreads uint32, opType operationType,
     persistentThreadPoolSize,maxThreadPoolSize uint32,
-    atomIntUUIDGeneration, gcOn bool) *ReadOnlyResult {
+    atomIntUUIDGeneration, gcOn, woundWaitOn bool) *ReadOnlyResult {
 
     var argSlice [] string
     
@@ -92,6 +93,9 @@ func (readOnly* ReadOnly) commonReadOnlyJar(
     }
     if atomIntUUIDGeneration {
         argSlice = append(argSlice,"-a")
+    }
+    if woundWaitOn {
+        argSlice = append(argSlice,"-w")
     }
     
     var stdOut bytes.Buffer
@@ -132,11 +136,11 @@ func (readOnly* ReadOnly) commonReadOnlyJar(
 func (readOnly * ReadOnly) perfReadOnlyJar(
     fqJar string, numReads, numThreads uint32, opType operationType,
     persistentThreadPoolSize,maxThreadPoolSize uint32,
-    atomIntUUIDGeneration bool) * ReadOnlyResult {
+    atomIntUUIDGeneration, woundWaitOn bool) * ReadOnlyResult {
 
     return readOnly.commonReadOnlyJar(
         true, fqJar, numReads, numThreads, opType,persistentThreadPoolSize,
-        maxThreadPoolSize,atomIntUUIDGeneration,true)
+        maxThreadPoolSize,atomIntUUIDGeneration,true,woundWaitOn)
 }
 
 /**
@@ -146,21 +150,21 @@ high that gc is unlikely to run.
 func (readOnly * ReadOnly) perfReadOnlyJarGCOff(
     fqJar string, numReads, numThreads uint32, opType operationType,
     persistentThreadPoolSize,maxThreadPoolSize uint32,
-    atomIntUUIDGeneration bool) * ReadOnlyResult {
+    atomIntUUIDGeneration, woundWaitOn bool) * ReadOnlyResult {
 
     return readOnly.commonReadOnlyJar(
         false, fqJar, numReads, numThreads, opType,persistentThreadPoolSize,
-        maxThreadPoolSize,atomIntUUIDGeneration,false)
+        maxThreadPoolSize,atomIntUUIDGeneration,false,woundWaitOn)
 }
 
 func (readOnly ReadOnly) readOnlyJar (
     fqJar string, numReads, numThreads uint32, opType operationType,
     persistentThreadPoolSize,maxThreadPoolSize uint32,
-    atomIntUUIDGeneration bool) * ReadOnlyResult {
+    atomIntUUIDGeneration, woundWaitOn bool) * ReadOnlyResult {
 
     return readOnly.commonReadOnlyJar(
         false, fqJar, numReads, numThreads, opType,persistentThreadPoolSize,
-        maxThreadPoolSize,atomIntUUIDGeneration,true)
+        maxThreadPoolSize,atomIntUUIDGeneration,true,woundWaitOn)
 }
 
 func testRunOutputToResults(
