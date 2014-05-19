@@ -4,7 +4,7 @@ import "path/filepath"
 import "fmt"
 import "strconv"
 
-const UUID_GENERATION_OUTPUT_NAME = "uuig_generation.csv"
+const UUID_GENERATION_OUTPUT_NAME = "uuid_generation.csv"
 const UUID_GENERATION_TEST_NUM_READS = 100000
 const UUID_GENERATION_OP_TYPE = READ_NUM 
 
