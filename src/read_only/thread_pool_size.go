@@ -13,7 +13,7 @@ var NUM_THREADS [2] uint32 = [2] uint32 {1,2}
 const THREAD_POOL_SIZE_OP_TYPE = READ_ATOM_NUM 
 
 
-func threadPoolSizeTests(readOnly* ReadOnly, jarDir,outputFolder string) {
+func threadPoolSizeTests(jarDir,outputFolder string) {
     
     fqJar := filepath.Join(jarDir,READ_ONLY_JAR_NAME)
     fmt.Println("Running thread pool size experiment: ")
@@ -36,7 +36,7 @@ func threadPoolSizeTests(readOnly* ReadOnly, jarDir,outputFolder string) {
                 params.persistentThreadPoolSize = threadPoolSize
                 params.maxThreadPoolSize = threadPoolSize
                 
-                result := readOnly.commonReadOnlyJar(fqJar,params)
+                result := commonReadOnlyJar(fqJar,params)
                 results = append(results,result)
             }
         }

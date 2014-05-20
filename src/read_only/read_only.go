@@ -43,23 +43,21 @@ const PERF_STAT_OUTPUT_FILENAME = "perf_stats.txt"
 const NUM_TIMES_TO_RUN_EACH_EXPERIMENT = 10
 
 
-type ReadOnly struct {
+
+func RunAll(jarDir,outputFolder string) {
+    singleThreadWarmTests(jarDir,outputFolder)
+    numThreadsTests(jarDir,outputFolder)
+    perfNumThreadsTests(jarDir,outputFolder)
+    perfGCOffNumThreadsTests(jarDir,outputFolder)
+    perfLocksOffNumThreadsTests(jarDir,outputFolder)
+    perfWoundWaitNumThreadsTests(jarDir,outputFolder)
+    perfReadsOnDifferentObjectsNumThreadsTests(jarDir,outputFolder)
+    threadPoolSizeTests(jarDir,outputFolder)
+    uuidGenerationTests(jarDir,outputFolder)
+    memLeakTests(jarDir,outputFolder)
 }
 
-func(readOnly* ReadOnly) RunAll(jarDir,outputFolder string) {
-    singleThreadWarmTests(readOnly,jarDir,outputFolder)
-    numThreadsTests(readOnly,jarDir,outputFolder)
-    perfNumThreadsTests(readOnly,jarDir,outputFolder)
-    perfGCOffNumThreadsTests(readOnly,jarDir,outputFolder)
-    perfLocksOffNumThreadsTests(readOnly,jarDir,outputFolder)
-    perfWoundWaitNumThreadsTests(readOnly,jarDir,outputFolder)
-    perfReadsOnDifferentObjectsNumThreadsTests(readOnly,jarDir,outputFolder)
-    threadPoolSizeTests(readOnly, jarDir,outputFolder)
-    uuidGenerationTests(readOnly, jarDir,outputFolder)
-    memLeakTests(readOnly,jarDir,outputFolder)
-}
-
-func (readOnly* ReadOnly) commonReadOnlyJar(
+func commonReadOnlyJar(
     fqJar string, params * Parameter) *ReadOnlyResult {
 
     var argSlice [] string
@@ -76,11 +74,11 @@ func (readOnly* ReadOnly) commonReadOnlyJar(
     }
     
     argSlice = append(argSlice,[]string{"-jar",fqJar}...)
-    argSlice = append(argSlice,readOnly.addReadsPerThread(params.numReads)...)
-    argSlice = append(argSlice,readOnly.addNumThreads(params.numThreads)...)
-    argSlice = append(argSlice,readOnly.addOperationType(params.opType)...)
+    argSlice = append(argSlice,addReadsPerThread(params.numReads)...)
+    argSlice = append(argSlice,addNumThreads(params.numThreads)...)
+    argSlice = append(argSlice,addOperationType(params.opType)...)
     if params.persistentThreadPoolSize != 0 {
-        threadPoolSizesArgs := readOnly.addThreadPoolSizes(
+        threadPoolSizesArgs := addThreadPoolSizes(
             params.persistentThreadPoolSize,params.maxThreadPoolSize)
         argSlice = append(argSlice,threadPoolSizesArgs...)
     }
@@ -154,7 +152,7 @@ func testRunOutputToResults(
     return toReturn
 }
 
-func (readOnly ReadOnly) addThreadPoolSizes(
+func addThreadPoolSizes(
     persistentThreadPoolSize,maxThreadPoolSize uint32) [] string {
     
     return [] string {
@@ -163,16 +161,16 @@ func (readOnly ReadOnly) addThreadPoolSizes(
     }
 }
 
-func (readOnly ReadOnly) addReadsPerThread(numOps uint32) []string {
+func addReadsPerThread(numOps uint32) []string {
     
     return [] string {"-r",strconv.FormatUint(uint64(numOps),10)}
 }
 
-func (readOnly ReadOnly) addNumThreads(numThreads uint32) []string {
+func addNumThreads(numThreads uint32) []string {
     return []string{"-t", strconv.FormatUint(uint64(numThreads),10)}
 }
 
-func (readOnly ReadOnly) addOperationType(op operationType) []string {
+func addOperationType(op operationType) []string {
 
     if op == READ_ATOM_NUM {
         return [] string {READ_ATOM_NUM_ARG}

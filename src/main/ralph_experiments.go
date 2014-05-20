@@ -11,6 +11,5 @@ func main() {
     outputDir := os.Args[2]
     // create output directory if doesn't already exist
     os.MkdirAll(outputDir,0777)
-    readOnlyModule := read_only.ReadOnly{}
-    readOnlyModule.RunAll(readOnlyJarDir,outputDir)
+    read_only.RunAll(readOnlyJarDir,outputDir)
 }

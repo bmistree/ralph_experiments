@@ -10,7 +10,7 @@ const MEM_LEAK_OP_TYPE = READ_ATOM_NUM
 var MEM_LEAK_MULTIPLE_DURATIONS_TO_RUN [5] uint32 =
     [5]uint32{1,2,4,8,16}
 
-func memLeakTests(readOnly* ReadOnly, jarDir,outputFolder string) {
+func memLeakTests(jarDir,outputFolder string) {
     
     fqJar := filepath.Join(jarDir,READ_ONLY_JAR_NAME)
     fmt.Println("Running mem leak experiment: ")
@@ -23,7 +23,7 @@ func memLeakTests(readOnly* ReadOnly, jarDir,outputFolder string) {
     params.numReads = MEM_LEAK_SINGLE_THREAD_NUM_READS
     params.perfOn = true
     
-    baselineResult := readOnly.commonReadOnlyJar(
+    baselineResult := commonReadOnlyJar(
         fqJar,params)
     
     results = append(results,baselineResult)
@@ -38,7 +38,7 @@ func memLeakTests(readOnly* ReadOnly, jarDir,outputFolder string) {
         for _, numOpsMultiplier := range MEM_LEAK_MULTIPLE_DURATIONS_TO_RUN {
             totalNumOps := numOpsMultiplier * MEM_LEAK_SINGLE_THREAD_NUM_READS
             params.numReads = totalNumOps
-            result := readOnly.commonReadOnlyJar(fqJar,params)
+            result := commonReadOnlyJar(fqJar,params)
             results = append(results,result)
         }
     }
