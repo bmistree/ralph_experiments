@@ -97,69 +97,71 @@ function plot(div_id_to_plot_on,data_list)
     bar_chart.selectAll('rect').
         data(data_list).
         enter().
-        append("svg:rect").
-        attr("x",
+        append('svg:rect').
+        attr('x',
              function(datum, index)
              {
                  return x_rect_positions(index);
              }).
-        attr("y",
+        attr('y',
              function(datum)
              {
                  return BAR_HEIGHT - y_heights(datum.reads_per_second);
              }).
-        attr("height",
+        attr('height',
              function(datum)
              {
                  return y_heights(datum.reads_per_second);
              }).
-        attr("width", BAR_WIDTH).
-        attr("fill",
+        attr('width', BAR_WIDTH).
+        attr('fill',
              function (datum)
              {
                  if (datum.num_threads == 1)
-                     return "steelblue";
+                     return 'steelblue';
                  else if (datum.num_threads == 2)
-                     return "green";
-                 return red;
+                     return 'green';
+                 else if (datum.num_threads == 5)
+                     return 'red';
+                 return 'brown';
              });
 
-     bar_chart.selectAll("text").
+     bar_chart.selectAll('text').
         data(data_list).
         enter().
-        append("svg:text").
-        attr("x",
+        append('svg:text').
+        attr('x',
              function(datum, index)
              {
                  return x_rect_positions(index) + BAR_WIDTH;
              }).
-        attr("y",
+        attr('y',
              function(datum)
              {
                  return BAR_HEIGHT - y_heights(datum.reads_per_second);
              }).
-        attr("dx", -BAR_WIDTH/1.5).
-        attr("dy", "1.2em").
-        attr("text-anchor", "middle").
+        attr('dx', -BAR_WIDTH/1.5).
+        attr('dy', '1.2em').
+        attr('text-anchor', 'middle').
         text(function(datum)
              {                 
                  return Math.round(datum.reads_per_second/1000);
              }).
-        attr("fill", "white");
+        attr('fill', 'white');
 
 
-    bar_chart.selectAll("text.yAxis").
+    bar_chart.selectAll('text.yAxis').
         data(data_list).
-        enter().append("svg:text").
-        attr("x",
+        enter().append('svg:text').
+        attr('x',
              function(datum, index)
              {
                  return x_rect_positions(index) + BAR_WIDTH;
              }).
-        attr("y", BAR_HEIGHT ).
-        attr("dx", -BAR_WIDTH/2).
-        attr("text-anchor", "middle").
-        attr("style", "font-size: 12; font-family: Helvetica, sans-serif").
+        attr('y', BAR_HEIGHT ).
+        attr('dx', -BAR_WIDTH/2).
+        attr('text-anchor', 'middle').
+        attr('style', 'font-size: 12; font-family: Helvetica, sans-serif').
         html(function(datum) {
                  var to_return;
                  if (datum.read_type == 0)
@@ -171,26 +173,26 @@ function plot(div_id_to_plot_on,data_list)
                  else
                      to_return = 'map';
 
-                 return to_return + " " +
+                 return to_return + ' ' +
                      Math.round(datum.num_reads/1000);
              }).
         attr('transform', 'translate(0, 18)').
         style('fill','black').
-        attr("class", "yAxis");
+        attr('class', 'yAxis');
     
-    bar_chart.selectAll("text.yAxis").
+    bar_chart.selectAll('text.yAxis').
         // data(data_list).
         // enter().
-        append("svg:text").
-        attr("x",
+        append('svg:text').
+        attr('x',
              function(datum, index)
              {
                  return x_rect_positions(index) + BAR_WIDTH;
              }).
-        attr("y", BAR_HEIGHT ).
-        attr("dx", -BAR_WIDTH/2).
-        attr("text-anchor", "middle").
-        attr("style", "font-size: 12; font-family: Helvetica, sans-serif").
+        attr('y', BAR_HEIGHT ).
+        attr('dx', -BAR_WIDTH/2).
+        attr('text-anchor', 'middle').
+        attr('style', 'font-size: 12; font-family: Helvetica, sans-serif').
         text(function(datum) {
                  if (datum.readType == 0)
                      return 'atom num';
@@ -202,7 +204,7 @@ function plot(div_id_to_plot_on,data_list)
              }).
         attr('transform', 'translate(0, 18)').
         style('fill','black').
-        attr("class", "yAxis");
+        attr('class', 'yAxis');
     
 }
 
