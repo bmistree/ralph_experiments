@@ -13,9 +13,9 @@ const WOUND_WAIT_PERF_NUM_THREADS_OUTPUT_NAME =
 const READS_ON_DIFFERENT_OBJECTS_PERF_NUM_THREADS_OUTPUT_NAME =
     "reads_on_different_objects.csv"
 const NUM_THREADS_TEST_NUM_READS = 100000
-// var NUM_THREADS_TEST_NUM_THREADS [4]uint32 = [4]uint32{1,2,5,10}
+var NUM_THREADS_TEST_NUM_THREADS [4]uint32 = [4]uint32{1,2,5,10}
 // var NUM_THREADS_TEST_NUM_THREADS [1]uint32 = [1]uint32{1}
-var NUM_THREADS_TEST_NUM_THREADS [2]uint32 = [2]uint32{1,2}
+// var NUM_THREADS_TEST_NUM_THREADS [2]uint32 = [2]uint32{1,2}
 
 func numThreadsTests(readOnly* ReadOnly,jarDir,outputFolder string) {
     outputFilename := filepath.Join(outputFolder,NUM_THREADS_OUTPUT_NAME)

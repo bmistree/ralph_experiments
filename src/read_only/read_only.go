@@ -40,23 +40,23 @@ const READ_NUM_ARG = "-nan"
 const READ_MAP_ARG = "-nam"
 
 const PERF_STAT_OUTPUT_FILENAME = "perf_stats.txt"
-const NUM_TIMES_TO_RUN_EACH_EXPERIMENT = 1
+const NUM_TIMES_TO_RUN_EACH_EXPERIMENT = 10
 
 
 type ReadOnly struct {
 }
 
 func(readOnly* ReadOnly) RunAll(jarDir,outputFolder string) {
-    // singleThreadWarmTests(readOnly,jarDir,outputFolder)
-    // numThreadsTests(readOnly,jarDir,outputFolder)
+    singleThreadWarmTests(readOnly,jarDir,outputFolder)
+    numThreadsTests(readOnly,jarDir,outputFolder)
     perfNumThreadsTests(readOnly,jarDir,outputFolder)
-    // perfGCOffNumThreadsTests(readOnly,jarDir,outputFolder)
-    // perfLocksOffNumThreadsTests(readOnly,jarDir,outputFolder)
-    // perfWoundWaitNumThreadsTests(readOnly,jarDir,outputFolder)
-    // perfReadsOnDifferentObjectsNumThreadsTests(readOnly,jarDir,outputFolder)
-    // threadPoolSizeTests(readOnly, jarDir,outputFolder)
-    // uuidGenerationTests(readOnly, jarDir,outputFolder)
-    // memLeakTests(readOnly,jarDir,outputFolder)
+    perfGCOffNumThreadsTests(readOnly,jarDir,outputFolder)
+    perfLocksOffNumThreadsTests(readOnly,jarDir,outputFolder)
+    perfWoundWaitNumThreadsTests(readOnly,jarDir,outputFolder)
+    perfReadsOnDifferentObjectsNumThreadsTests(readOnly,jarDir,outputFolder)
+    threadPoolSizeTests(readOnly, jarDir,outputFolder)
+    uuidGenerationTests(readOnly, jarDir,outputFolder)
+    memLeakTests(readOnly,jarDir,outputFolder)
 }
 
 func (readOnly* ReadOnly) commonReadOnlyJar(
