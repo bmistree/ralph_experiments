@@ -124,7 +124,58 @@ function plot(div_id_to_plot_on,data_list)
                  else if (datum.num_threads == 5)
                      return 'red';
                  return 'brown';
-             });
+             }).
+        on('mouseover',
+           function(datum)
+           {
+               $('#' + div_id_to_plot_on + '_notes').html(
+                   '<table cellpadding="0" cellspacing="0" border="0" class="table table-striped table-bordered" id="example">' + 
+
+                       '<tr><td>CPUs utilized</td><td>' +
+                       datum.cpus_utilized + '</td></tr>' +
+                       
+                   '<tr><td>Context switches</td><td>' +
+                       datum.context_switches + '</td></tr>' +
+
+                   '<tr><td>CPU migration</td><td>' +
+                       datum.cpu_migrations + '</td></tr>' +
+
+                   '<tr><td>Page faults</td><td>' +
+                       datum.page_faults + '</td></tr>' +
+
+                   '<tr><td>Cycles</td><td>' +
+                       datum.cycles + '</td></tr>' +
+
+                   '<tr><td>Stalled cycles frontend</td><td>' +
+                       datum.stalled_cycles_frontend + '</td></tr>' +
+
+                   '<tr><td>Frontend cycles idle</td><td>' +
+                       datum.frontend_cycles_idle + '%</td></tr>' +
+
+                   '<tr><td>Stalled cycles backend</td><td>' +
+                       datum.stalled_cycles_backend + '</td></tr>' +
+
+                   '<tr><td>Backend cycles idle</td><td>' +
+                       datum.backend_cycles_idle + '%</td></tr>' +
+
+                   '<tr><td>Instructions</td><td>' +
+                       datum.instructions + '</td></tr>' +
+                       
+                   '<tr><td>Branches</td><td>' +
+                       datum.branches + '</td></tr>' +
+
+                   '<tr><td>Branch misses</td><td>' +
+                       datum.branch_misses + '</td></tr>' +
+                       
+                   '</table>'
+                   );
+           }).
+        on('mouseout',
+           function(datum)
+           {
+               $('#' + div_id_to_plot_on + '_notes').html('');
+           });
+
 
      bar_chart.selectAll('text').
         data(data_list).
