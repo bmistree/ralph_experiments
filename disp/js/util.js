@@ -33,7 +33,7 @@ function plot(div_id_to_plot_on,data_list)
     var bar_chart = d3.select('#' + div_id_to_plot_on).
         append('svg:svg').
         attr('width', width).
-        attr('height', BAR_HEIGHT+20);
+        attr('height', BAR_HEIGHT+60);
 
     var x_rect_positions =
         d3.scale.linear().domain([0, num_conditions]).range([0, width]);
