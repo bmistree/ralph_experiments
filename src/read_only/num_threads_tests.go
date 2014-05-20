@@ -20,73 +20,90 @@ var NUM_THREADS_TEST_NUM_THREADS [4]uint32 = [4]uint32{1,2,5,10}
 func numThreadsTests(readOnly* ReadOnly,jarDir,outputFolder string) {
     outputFilename := filepath.Join(outputFolder,NUM_THREADS_OUTPUT_NAME)
     fqJar := filepath.Join(jarDir,READ_ONLY_JAR_NAME)
+
+    params := createDefaultParameter()
     commonNumThreadsTests(
-        readOnly,fqJar,outputFilename,false,true,false,false,
-        ALL_OPERATION_TYPES,"numThreadsTest")
+        readOnly,fqJar,outputFilename,ALL_OPERATION_TYPES,params,
+        "numThreadsTest")
 }
 
 func perfNumThreadsTests(readOnly* ReadOnly,jarDir,outputFolder string) {
+    params := createDefaultParameter()
+    params.perfOn = true
     outputFilename := filepath.Join(outputFolder,PERF_NUM_THREADS_OUTPUT_NAME)
     fqJar := filepath.Join(jarDir,READ_ONLY_JAR_NAME)
     commonNumThreadsTests(
-        readOnly,fqJar,outputFilename,true,true,false,false,
-        ALL_OPERATION_TYPES,"perfNumThreadsTest")
+        readOnly,fqJar,outputFilename,ALL_OPERATION_TYPES,params,
+        "perfNumThreadsTest")
 }
 
 func perfWoundWaitNumThreadsTests(
     readOnly* ReadOnly,jarDir,outputFolder string) {
-
+    params := createDefaultParameter()
+    params.perfOn = true
+    params.woundWaitOn = true
     outputFilename :=
         filepath.Join(outputFolder,WOUND_WAIT_PERF_NUM_THREADS_OUTPUT_NAME)
     fqJar := filepath.Join(jarDir,READ_ONLY_JAR_NAME)
     commonNumThreadsTests(
-        readOnly,fqJar,outputFilename,true,false,true,false,
-        []operationType{READ_ATOM_NUM},"perfWoundWaitNumThreadsTest")
+        readOnly,fqJar,outputFilename, []operationType{READ_ATOM_NUM},
+        params,"perfWoundWaitNumThreadsTest")
 }
 
 func perfReadsOnDifferentObjectsNumThreadsTests(
     readOnly* ReadOnly,jarDir,outputFolder string) {
 
+    params := createDefaultParameter()
+    params.perfOn = true
+    params.readsOnOtherAtomNum = true
+    
     outputFilename :=
         filepath.Join(outputFolder,WOUND_WAIT_PERF_NUM_THREADS_OUTPUT_NAME)
     fqJar := filepath.Join(jarDir,READ_ONLY_JAR_NAME)
     commonNumThreadsTests(
-        readOnly,fqJar,outputFilename,true,false,true,true,
-        []operationType{READ_ATOM_NUM},
-        "perfReadsOnDifferentObjectsNumThreadsTest")
+        readOnly,fqJar,outputFilename,[]operationType{READ_ATOM_NUM},
+        params,"perfReadsOnDifferentObjectsNumThreadsTest")
 }
-
 
 func perfGCOffNumThreadsTests(
     readOnly* ReadOnly,jarDir,outputFolder string) {
+
+    params := createDefaultParameter()
+    params.perfOn = true
+    params.gcOn = false
 
     outputFilename :=
         filepath.Join(outputFolder,GC_OFF_PERF_NUM_THREADS_OUTPUT_NAME)
     fqJar := filepath.Join(jarDir,READ_ONLY_JAR_NAME)
     commonNumThreadsTests(
-        readOnly,fqJar,outputFilename,true,false,false,false,
-        []operationType{READ_ATOM_NUM},"perfGCOffNumThreadsTest")
+        readOnly,fqJar,outputFilename,[]operationType{READ_ATOM_NUM},
+        params,"perfGCOffNumThreadsTest")
 }
 
 func perfLocksOffNumThreadsTests(
     readOnly* ReadOnly,jarDir,outputFolder string) {
 
+    params := createDefaultParameter()
+    params.perfOn = true
+    
     outputFilename :=
         filepath.Join(outputFolder,LOCKS_OFF_PERF_NUM_THREADS_OUTPUT_NAME)
     fqJar := filepath.Join(jarDir,LOCKS_OFF_READ_ONLY_JAR_NAME)
     commonNumThreadsTests(
-        readOnly,fqJar,outputFilename,true,false,false,false,
-        []operationType{READ_ATOM_NUM},"perfLocksOffNumThreadsTest")
+        readOnly,fqJar,outputFilename,[]operationType{READ_ATOM_NUM},
+        params,"perfLocksOffNumThreadsTest")
 }
 
 func commonNumThreadsTests(
-    readOnly* ReadOnly,fqJar,outputFilename string, perfTest,
-    gcOn, woundWaitOn, readsOnOtherAtomNum bool, opsToRun []operationType,
-    testDescription string) {
+    readOnly* ReadOnly,fqJar,outputFilename string,
+    opsToRun []operationType, params * Parameter, testDescription string) {
+
 
     // describe test that's running to the user
     fmt.Println(testDescription)
-    
+
+    params.numReads = NUM_THREADS_TEST_NUM_READS
+        
     var results [] * ReadOnlyResult
     for i := 0; i < NUM_TIMES_TO_RUN_EACH_EXPERIMENT; i++ {
         fmt.Println(
@@ -94,26 +111,11 @@ func commonNumThreadsTests(
             strconv.Itoa(NUM_TIMES_TO_RUN_EACH_EXPERIMENT));
         
         for _,numThreads := range NUM_THREADS_TEST_NUM_THREADS {
+            params.numThreads = numThreads
             // try thread size tests across all operation types
             for _, opType := range opsToRun {
-
-                var result *ReadOnlyResult
-                if perfTest {
-
-                    if gcOn {
-                        result = readOnly.perfReadOnlyJar(
-                            fqJar,NUM_THREADS_TEST_NUM_READS,numThreads,
-                            opType,0,0,false,woundWaitOn,readsOnOtherAtomNum)
-                    } else {
-                        result = readOnly.perfReadOnlyJarGCOff(
-                            fqJar,NUM_THREADS_TEST_NUM_READS,numThreads,
-                            opType,0,0,false,woundWaitOn,readsOnOtherAtomNum)
-                    }
-                } else {
-                    result = readOnly.readOnlyJar(
-                        fqJar,NUM_THREADS_TEST_NUM_READS,numThreads,
-                        opType,0,0,false,woundWaitOn,readsOnOtherAtomNum)
-                }
+                params.opType = opType
+                result := readOnly.commonReadOnlyJar(fqJar,params)
                 results = append(results,result)
             }
         }

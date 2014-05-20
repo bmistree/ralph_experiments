@@ -17,6 +17,11 @@ func threadPoolSizeTests(readOnly* ReadOnly, jarDir,outputFolder string) {
     
     fqJar := filepath.Join(jarDir,READ_ONLY_JAR_NAME)
     fmt.Println("Running thread pool size experiment: ")
+
+    params := createDefaultParameter()
+    params.opType = THREAD_POOL_SIZE_OP_TYPE
+    params.numReads = NUM_THREADS_TEST_NUM_READS
+    params.perfOn = true
     
     var results [] * ReadOnlyResult
     for i := 0; i < NUM_TIMES_TO_RUN_EACH_EXPERIMENT; i++ {
@@ -26,11 +31,12 @@ func threadPoolSizeTests(readOnly* ReadOnly, jarDir,outputFolder string) {
         
         for _,numThreads := range NUM_THREADS {
             for _, threadPoolSize := range THREAD_POOL_SIZES {
+
+                params.numThreads = numThreads
+                params.persistentThreadPoolSize = threadPoolSize
+                params.maxThreadPoolSize = threadPoolSize
                 
-                result := readOnly.perfReadOnlyJar(
-                    fqJar,NUM_THREADS_TEST_NUM_READS,numThreads,
-                    THREAD_POOL_SIZE_OP_TYPE,threadPoolSize,
-                    threadPoolSize,false,false,false)
+                result := readOnly.commonReadOnlyJar(fqJar,params)
                 results = append(results,result)
             }
         }

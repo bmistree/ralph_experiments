@@ -13,6 +13,11 @@ func uuidGenerationTests(
     
     fqJar := filepath.Join(jarDir,READ_ONLY_JAR_NAME)
     fmt.Println("Running uuid generation tests: ")
+
+    params := createDefaultParameter()
+    params.numReads = UUID_GENERATION_TEST_NUM_READS
+    params.opType = UUID_GENERATION_OP_TYPE
+    params.perfOn = true
     
     var results [] * ReadOnlyResult
     for i := 0; i < NUM_TIMES_TO_RUN_EACH_EXPERIMENT; i++ {
@@ -21,15 +26,13 @@ func uuidGenerationTests(
             strconv.Itoa(NUM_TIMES_TO_RUN_EACH_EXPERIMENT));
 
         // with standard uuid generation
-        result := readOnly.perfReadOnlyJar(
-            fqJar,UUID_GENERATION_TEST_NUM_READS,1,
-            UUID_GENERATION_OP_TYPE,0,0,false,false,false)
+        params.atomIntUUIDGeneration = false
+        result := readOnly.commonReadOnlyJar(fqJar,params)
         results = append(results,result)
 
         // with atomic number uuid generation
-        result = readOnly.perfReadOnlyJar(
-            fqJar,UUID_GENERATION_TEST_NUM_READS,1,
-            UUID_GENERATION_OP_TYPE,0,0,true,false,false)
+        params.atomIntUUIDGeneration = true
+        result = readOnly.commonReadOnlyJar(fqJar,params)
         results = append(results,result)
     }
     // write results to file

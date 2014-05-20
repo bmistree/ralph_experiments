@@ -60,48 +60,45 @@ func(readOnly* ReadOnly) RunAll(jarDir,outputFolder string) {
 }
 
 func (readOnly* ReadOnly) commonReadOnlyJar(
-    perfOn bool, fqJar string, numReads, numThreads uint32,
-    opType operationType, persistentThreadPoolSize,
-    maxThreadPoolSize uint32, atomIntUUIDGeneration, gcOn, woundWaitOn,
-    readsOnOtherAtomNum bool) *ReadOnlyResult {
+    fqJar string, params * Parameter) *ReadOnlyResult {
 
     var argSlice [] string
     
-    if perfOn {
+    if params.perfOn {
         argSlice = append(
             argSlice,
             []string{"stat","-o",PERF_STAT_OUTPUT_FILENAME,"java"}...)
     }
     
-    if !gcOn {
+    if !params.gcOn {
         argSlice = append(argSlice,GC_OFF_MIN_HEAP_SIZE_FLAG)
         argSlice = append(argSlice,GC_OFF_MAX_HEAP_SIZE_FLAG)
     }
     
     argSlice = append(argSlice,[]string{"-jar",fqJar}...)
-    argSlice = append(argSlice,readOnly.addReadsPerThread(numReads)...)
-    argSlice = append(argSlice,readOnly.addNumThreads(numThreads)...)
-    argSlice = append(argSlice,readOnly.addOperationType(opType)...)
-    if persistentThreadPoolSize != 0 {
+    argSlice = append(argSlice,readOnly.addReadsPerThread(params.numReads)...)
+    argSlice = append(argSlice,readOnly.addNumThreads(params.numThreads)...)
+    argSlice = append(argSlice,readOnly.addOperationType(params.opType)...)
+    if params.persistentThreadPoolSize != 0 {
         threadPoolSizesArgs := readOnly.addThreadPoolSizes(
-            persistentThreadPoolSize,maxThreadPoolSize)
+            params.persistentThreadPoolSize,params.maxThreadPoolSize)
         argSlice = append(argSlice,threadPoolSizesArgs...)
     }
-    if atomIntUUIDGeneration {
+    if params.atomIntUUIDGeneration {
         argSlice = append(argSlice,"-a")
     }
-    if woundWaitOn {
+    if params.woundWaitOn {
         argSlice = append(argSlice,"-w")
     }
 
-    if readsOnOtherAtomNum {
+    if params.readsOnOtherAtomNum {
         argSlice = append(argSlice,"-oan")
     }
     
     var stdOut bytes.Buffer
     var cmd * exec.Cmd = nil
 
-    if perfOn {
+    if params.perfOn {
         cmd = exec.Command("perf", argSlice...)
     } else {
         cmd = exec.Command("java", argSlice...)
@@ -116,7 +113,7 @@ func (readOnly* ReadOnly) commonReadOnlyJar(
 
     // get results from perf
     var perfOutput * common.PerfOutput = nil
-    if perfOn {
+    if params.perfOn {
         perfStatsByteData, err := ioutil.ReadFile(PERF_STAT_OUTPUT_FILENAME)
         if err != nil {
             panic(err)
@@ -129,48 +126,10 @@ func (readOnly* ReadOnly) commonReadOnlyJar(
 
     // returns read only resutls
     return testRunOutputToResults(
-        outputString,numReads,numThreads,opType,perfOutput)
+        outputString,params.numReads,params.numThreads,params.opType,
+        perfOutput)
 }
 
-func (readOnly * ReadOnly) perfReadOnlyJar(
-    fqJar string, numReads, numThreads uint32, opType operationType,
-    persistentThreadPoolSize,maxThreadPoolSize uint32,
-    atomIntUUIDGeneration, woundWaitOn,
-    readsOnOtherAtomNum bool) * ReadOnlyResult {
-
-    return readOnly.commonReadOnlyJar(
-        true, fqJar, numReads, numThreads, opType,persistentThreadPoolSize,
-        maxThreadPoolSize,atomIntUUIDGeneration,true,woundWaitOn,
-        readsOnOtherAtomNum)
-}
-
-/**
-Cannot really run gc off, but can set maximum heap size to be so
-high that gc is unlikely to run.
-*/
-func (readOnly * ReadOnly) perfReadOnlyJarGCOff(
-    fqJar string, numReads, numThreads uint32, opType operationType,
-    persistentThreadPoolSize,maxThreadPoolSize uint32,
-    atomIntUUIDGeneration, woundWaitOn,
-    readsOnOtherAtomNum  bool) * ReadOnlyResult {
-
-    return readOnly.commonReadOnlyJar(
-        true, fqJar, numReads, numThreads, opType,persistentThreadPoolSize,
-        maxThreadPoolSize,atomIntUUIDGeneration,false,woundWaitOn,
-        readsOnOtherAtomNum)
-}
-
-func (readOnly ReadOnly) readOnlyJar (
-    fqJar string, numReads, numThreads uint32, opType operationType,
-    persistentThreadPoolSize,maxThreadPoolSize uint32,
-    atomIntUUIDGeneration, woundWaitOn,
-    readsOnOtherAtomNum bool) * ReadOnlyResult {
-
-    return readOnly.commonReadOnlyJar(
-        false, fqJar, numReads, numThreads, opType,persistentThreadPoolSize,
-        maxThreadPoolSize,atomIntUUIDGeneration,true,woundWaitOn,
-        readsOnOtherAtomNum)
-}
 
 func testRunOutputToResults(
     cmdResult string,numReads,numThreads uint32, opType operationType,
