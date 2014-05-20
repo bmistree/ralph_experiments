@@ -30,7 +30,7 @@ func threadPoolSizeTests(readOnly* ReadOnly, jarDir,outputFolder string) {
                 result := readOnly.perfReadOnlyJar(
                     fqJar,NUM_THREADS_TEST_NUM_READS,numThreads,
                     THREAD_POOL_SIZE_OP_TYPE,threadPoolSize,
-                    threadPoolSize,false,false)
+                    threadPoolSize,false,false,false)
                 results = append(results,result)
             }
         }

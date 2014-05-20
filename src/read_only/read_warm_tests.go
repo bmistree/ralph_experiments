@@ -18,7 +18,7 @@ func singleThreadWarmTests(readOnly* ReadOnly,jarDir,outputFolder string) {
             strconv.Itoa(NUM_TIMES_TO_RUN_EACH_EXPERIMENT));
         for _,numReads := range WARM_TEST_NUM_OPS {
             result := readOnly.readOnlyJar(
-                fqJar,numReads,1,READ_NUM,0,0,false,false)
+                fqJar,numReads,1,READ_NUM,0,0,false,false,false)
             results = append(results,result)
         }
     }
