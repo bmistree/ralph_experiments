@@ -64,8 +64,42 @@ function plot(div_id_to_plot_on,data_list)
                  return y_heights(datum.reads_per_second);
              }).
         attr("width", BAR_WIDTH).
-        attr("fill", "steelblue");
+        attr("fill",
+             function (datum)
+             {
+                 if (datum.num_threads == 1)
+                     return "steelblue";
+                 else if (datum.num_threads == 2)
+                     return "green";
+                 return red;
+             });
+
+     bar_chart.selectAll("text").
+        data(data_list).
+        enter().
+        append("svg:text").
+        attr("x",
+             function(datum, index)
+             {
+                 return x_rect_positions(index) + BAR_WIDTH;
+             }).
+        attr("y",
+             function(datum)
+             {
+                 return BAR_HEIGHT - y_heights(datum.reads_per_second);
+             }).
+        attr("dx", -BAR_WIDTH/1.5).
+        attr("dy", "1.2em").
+        attr("text-anchor", "middle").
+        text(function(datum)
+             {
+                 
+                 return Math.round(datum.reads_per_second/1000);
+             }).
+        attr("fill", "white");
 }
+
+
 
 function RunStats(data_list)
 {
