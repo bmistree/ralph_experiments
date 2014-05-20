@@ -14,14 +14,15 @@ const READS_ON_DIFFERENT_OBJECTS_PERF_NUM_THREADS_OUTPUT_NAME =
     "reads_on_different_objects.csv"
 const NUM_THREADS_TEST_NUM_READS = 100000
 // var NUM_THREADS_TEST_NUM_THREADS [4]uint32 = [4]uint32{1,2,5,10}
-var NUM_THREADS_TEST_NUM_THREADS [1]uint32 = [1]uint32{1}
+// var NUM_THREADS_TEST_NUM_THREADS [1]uint32 = [1]uint32{1}
+var NUM_THREADS_TEST_NUM_THREADS [2]uint32 = [2]uint32{1,2}
 
 func numThreadsTests(readOnly* ReadOnly,jarDir,outputFolder string) {
     outputFilename := filepath.Join(outputFolder,NUM_THREADS_OUTPUT_NAME)
     fqJar := filepath.Join(jarDir,READ_ONLY_JAR_NAME)
     commonNumThreadsTests(
         readOnly,fqJar,outputFilename,false,true,false,false,
-        ALL_OPERATION_TYPES)
+        ALL_OPERATION_TYPES,"numThreadsTest")
 }
 
 func perfNumThreadsTests(readOnly* ReadOnly,jarDir,outputFolder string) {
@@ -29,7 +30,7 @@ func perfNumThreadsTests(readOnly* ReadOnly,jarDir,outputFolder string) {
     fqJar := filepath.Join(jarDir,READ_ONLY_JAR_NAME)
     commonNumThreadsTests(
         readOnly,fqJar,outputFilename,true,true,false,false,
-        ALL_OPERATION_TYPES)
+        ALL_OPERATION_TYPES,"perfNumThreadsTest")
 }
 
 func perfWoundWaitNumThreadsTests(
@@ -40,7 +41,7 @@ func perfWoundWaitNumThreadsTests(
     fqJar := filepath.Join(jarDir,READ_ONLY_JAR_NAME)
     commonNumThreadsTests(
         readOnly,fqJar,outputFilename,true,false,true,false,
-        []operationType{READ_ATOM_NUM})
+        []operationType{READ_ATOM_NUM},"perfWoundWaitNumThreadsTest")
 }
 
 func perfReadsOnDifferentObjectsNumThreadsTests(
@@ -51,7 +52,8 @@ func perfReadsOnDifferentObjectsNumThreadsTests(
     fqJar := filepath.Join(jarDir,READ_ONLY_JAR_NAME)
     commonNumThreadsTests(
         readOnly,fqJar,outputFilename,true,false,true,true,
-        []operationType{READ_ATOM_NUM})
+        []operationType{READ_ATOM_NUM},
+        "perfReadsOnDifferentObjectsNumThreadsTest")
 }
 
 
@@ -63,7 +65,7 @@ func perfGCOffNumThreadsTests(
     fqJar := filepath.Join(jarDir,READ_ONLY_JAR_NAME)
     commonNumThreadsTests(
         readOnly,fqJar,outputFilename,true,false,false,false,
-        []operationType{READ_ATOM_NUM})
+        []operationType{READ_ATOM_NUM},"perfGCOffNumThreadsTest")
 }
 
 func perfLocksOffNumThreadsTests(
@@ -74,18 +76,16 @@ func perfLocksOffNumThreadsTests(
     fqJar := filepath.Join(jarDir,LOCKS_OFF_READ_ONLY_JAR_NAME)
     commonNumThreadsTests(
         readOnly,fqJar,outputFilename,true,false,false,false,
-        []operationType{READ_ATOM_NUM})
+        []operationType{READ_ATOM_NUM},"perfLocksOffNumThreadsTest")
 }
 
 func commonNumThreadsTests(
     readOnly* ReadOnly,fqJar,outputFilename string, perfTest,
-    gcOn, woundWaitOn, readsOnOtherAtomNum bool, opsToRun []operationType) {
+    gcOn, woundWaitOn, readsOnOtherAtomNum bool, opsToRun []operationType,
+    testDescription string) {
 
-    if perfTest {
-        fmt.Println("Running perf num threads experiment: ")
-    } else {
-        fmt.Println("Running num threads experiment: ")
-    }
+    // describe test that's running to the user
+    fmt.Println(testDescription)
     
     var results [] * ReadOnlyResult
     for i := 0; i < NUM_TIMES_TO_RUN_EACH_EXPERIMENT; i++ {
