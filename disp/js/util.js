@@ -16,7 +16,7 @@ INSTRUCTIONS_INDEX = 13;
 BRANCHES_INDEX = 14;
 BRANCH_MISSES_INDEX = 15;
 
-BAR_WIDTH = 40;
+BAR_WIDTH = 80;
 BAR_CATEGORY_SPACING_WIDTH = 10;
 BAR_HEIGHT = 200;
 
@@ -142,7 +142,7 @@ function plot(div_id_to_plot_on,data_list)
         attr("dy", "1.2em").
         attr("text-anchor", "middle").
         text(function(datum)
-             {
+             {                 
                  return Math.round(datum.reads_per_second/1000);
              }).
         attr("fill", "white");
@@ -160,12 +160,50 @@ function plot(div_id_to_plot_on,data_list)
         attr("dx", -BAR_WIDTH/2).
         attr("text-anchor", "middle").
         attr("style", "font-size: 12; font-family: Helvetica, sans-serif").
-        text(function(datum) {
-                 return Math.round(datum.num_reads/1000);
+        html(function(datum) {
+                 var to_return;
+                 if (datum.read_type == 0)
+                     to_return = 'atom num';
+                 else if (datum.read_type == 1)
+                     to_return = 'atom map';
+                 else if (datum.read_type == 1)
+                     to_return = 'num';
+                 else
+                     to_return = 'map';
+
+                 return to_return + " " +
+                     Math.round(datum.num_reads/1000);
              }).
         attr('transform', 'translate(0, 18)').
         style('fill','black').
         attr("class", "yAxis");
+    
+    bar_chart.selectAll("text.yAxis").
+        // data(data_list).
+        // enter().
+        append("svg:text").
+        attr("x",
+             function(datum, index)
+             {
+                 return x_rect_positions(index) + BAR_WIDTH;
+             }).
+        attr("y", BAR_HEIGHT ).
+        attr("dx", -BAR_WIDTH/2).
+        attr("text-anchor", "middle").
+        attr("style", "font-size: 12; font-family: Helvetica, sans-serif").
+        text(function(datum) {
+                 if (datum.readType == 0)
+                     return 'atom num';
+                 if (datum.readType == 1)
+                     return 'atom map';
+                 if (datum.readType == 1)
+                     return 'num';
+                 return 'map';
+             }).
+        attr('transform', 'translate(0, 18)').
+        style('fill','black').
+        attr("class", "yAxis");
+    
 }
 
 
