@@ -15,7 +15,7 @@ import "io/ioutil"
 
 const READ_ONLY_JAR_NAME = "read_perf.jar"
 const LOCKS_OFF_READ_ONLY_JAR_NAME = "locks_off_read_perf.jar"
-
+const STACKED_READ_ONLY_JAR_NAME = "logging_read_perf.jar"
 
 type operationType uint32
 const (
@@ -98,11 +98,8 @@ func argBuilder (fqJar string, params * Parameter) [] string {
     return argSlice
 }
 
-func commonReadOnlyJar(
-    fqJar string, params * Parameter) *ReadOnlyResult {
-
+func baseReadOnlyJar(fqJar string, params * Parameter) (*common.PerfOutput,string) {
     argSlice := argBuilder(fqJar,params)
-    
     var stdOut bytes.Buffer
     cmd := exec.Command(argSlice[0], argSlice[1:]...)
     cmd.Stdout = &stdOut
@@ -126,12 +123,26 @@ func commonReadOnlyJar(
         perfOutput = common.ParsePerfOutput(perfStatsString)
     }
 
+    return perfOutput, outputString
+}
+
+
+func commonReadOnlyJar(fqJar string, params * Parameter) *ReadOnlyResult {
+
+    perfOutput, outputString := baseReadOnlyJar(fqJar,params)
     // returns read only resutls
     return testRunOutputToResults(
         outputString,params.numReads,params.numThreads,params.opType,
         perfOutput)
 }
 
+func loggedReadOnlyJar(fqJar string, params * Parameter) *LoggedReadOnlyResult {
+
+    perfOutput, outputString := baseReadOnlyJar(fqJar,params)
+    return loggedTestRunOutputToResults(
+        outputString, params.numReads,params.numThreads,params.opType,
+        perfOutput)
+}
 
 func testRunOutputToResults(
     cmdResult string,numReads,numThreads uint32, opType operationType,
