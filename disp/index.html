@@ -114,38 +114,135 @@
 
   
   <body>
+    <h1> How to read graphs </h1>
+    <table>
+      <tr>
+        <td> Blue: </td>
+        <td> 1 thread </td>
+      </tr>
+      <tr>
+        <td> Red: </td>
+        <td> 2 threads </td>
+      </tr>
+      <tr>
+        <td> Red: </td>
+        <td> 5 threads </td>
+      </tr>
+      <tr>
+        <td> Brown: </td>
+        <td> 10 threads </td>
+      </tr>
+    </table>
+    <p>
+      Number at top of bar is aggregate throughput of experiment (in
+      thousands).
+    </p>
+    <p>
+      Tag underneath bar is both the data structure read (map, atomic
+      map, number, atomic number) and the number of reads each thread
+      was asked to perform (in thousands).
+    </p>
+    
+    <h1> Problem </h1>
+    
+    Adding read-only programs to the system <em>decreases</em>
+    system-wide throughput.  (On an ideal computer, we should expect
+    system-wide throughput to monotonically increase from blue to
+    green to red to brown.)
+    <div id="across_different_ops">
+    </div>
+    <div id="across_different_ops_notes">
+    </div>
+
+    <h1> Setup </h1>
+    <p>
+      Throughput plateaus after ~50k requests on a single thread.
+      Subsequent experiments run with at least 50k requests in system.
+      (Captures effect of hotspot detection, warm cache, and amortized
+      cost of some initializations.)
+    </p>
+    
     <div id="warm_tests">
     </div>
     <div id="warm_tests_notes">
     </div>
+
     
 
+    <h1> Memory pressure </h1>
+
+    <p>
+      Hypothesis: Multi-thread setups are (in aggregate) running more
+      total programgs.  A memory leak might cause slowdown the more we
+      run.
+    </p>
+
+    <p>
+      Tested in two ways
+      <ol>
+        <li>
+          First graph: run comparable (or more) events on a single
+          thread and compare throughput with double threaded program
+        </li>
+        <li>
+          Second graph: set heap sizes for java so high that gc will
+          not run.
+        </li>
+      </ol>
+          
+    </p>
+    
     <div id="mem_leak_tests">
     </div>
     <div id="mem_leak_tests_notes">
-    </div>
-    
-
-    <div id="locks_off_tests">
-    </div>
-    <div id="locks_off_tests_notes">
-    </div>
-    
-    
-    <div id="wound_wait_tests">
-    </div>
-    <div id="wound_wait_tests_notes">
     </div>
 
     <div id="gc_off_tests">
     </div>
     <div id="gc_off_tests_notes">
     </div>
+
+    <h1> Lock contention </h1>
+    <p>
+      Hypothesis: throughput degradation caused by contention on
+      variable locks.  
+    </p>
+    <p>
+      Tested in two ways:
+      <ol>
+        <li>
+          Used non-atomic variables, which hold locks for much shorter
+          period and therefore have less contention.  (Graph at top of page.)
+        </li>
+        <li>
+          Commented out variable locks.  (Note: might get incorrect
+          results).  Numbers in graph below.
+        </li>
+      </ol>
+    </p>
     
-    <div id="across_different_ops">
+    <div id="locks_off_tests">
     </div>
-    <div id="across_different_ops_notes">
+    <div id="locks_off_tests_notes">
     </div>
+    
+    <h1> Promotion effects </h1>
+    <p>
+      Running with multiple threads can cause more calls into uuid
+      generator in cases where need to promote events.  (Maybe?)  This
+      is from running with wound-wait (no promotion) instead of ralph
+      fairness.
+    </p>
+    
+    <div id="wound_wait_tests">
+    </div>
+    <div id="wound_wait_tests_notes">
+    </div>
+
+    <h1> Other experiments not presented </h1>
+    <p> Modifying size of thread pool.</p>
+    <p> Modifying uuid generation. </p>
+
     
   </body>
 </html>
