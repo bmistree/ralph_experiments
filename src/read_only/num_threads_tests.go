@@ -101,11 +101,11 @@ func commonNumThreadsTests(
                 if perfTest {
 
                     if gcOn {
-                        result = readOnly.perfReadOnlyJarGCOff(
+                        result = readOnly.perfReadOnlyJar(
                             fqJar,NUM_THREADS_TEST_NUM_READS,numThreads,
                             opType,0,0,false,woundWaitOn,readsOnOtherAtomNum)
                     } else {
-                        result = readOnly.perfReadOnlyJar(
+                        result = readOnly.perfReadOnlyJarGCOff(
                             fqJar,NUM_THREADS_TEST_NUM_READS,numThreads,
                             opType,0,0,false,woundWaitOn,readsOnOtherAtomNum)
                     }
