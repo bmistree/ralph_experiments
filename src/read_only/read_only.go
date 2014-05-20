@@ -30,10 +30,8 @@ var ALL_OPERATION_TYPES =
 
 // For gc off experiments, need to be able to run with such a large
 // heap that garbage collection will be turned off.
-const GC_OFF_MIN_HEAP_SIZE_FLAG = "-Xms"
-const GC_OFF_MIN_HEAP_SIZE_VAL = "1000m"
-const GC_OFF_MAX_HEAP_SIZE_FLAG = "-Xmx"
-const GC_OFF_MAX_HEAP_SIZE_VAL = "1000m"
+const GC_OFF_MIN_HEAP_SIZE_FLAG = "-Xms1000m"
+const GC_OFF_MAX_HEAP_SIZE_FLAG = "-Xmx1000m"
 
 // Corresponding command line args for operation types
 const READ_ATOM_NUM_ARG = "-an"
@@ -74,14 +72,10 @@ func (readOnly* ReadOnly) commonReadOnlyJar(
             argSlice,
             []string{"stat","-o",PERF_STAT_OUTPUT_FILENAME,"java"}...)
     }
-
+    
     if !gcOn {
-        argSlice = append(
-            argSlice,
-            []string{GC_OFF_MIN_HEAP_SIZE_FLAG,GC_OFF_MIN_HEAP_SIZE_VAL}...)
-        argSlice = append(
-            argSlice,
-            []string{GC_OFF_MAX_HEAP_SIZE_FLAG,GC_OFF_MAX_HEAP_SIZE_VAL}...)
+        argSlice = append(argSlice,GC_OFF_MIN_HEAP_SIZE_FLAG)
+        argSlice = append(argSlice,GC_OFF_MAX_HEAP_SIZE_FLAG)
     }
     
     argSlice = append(argSlice,[]string{"-jar",fqJar}...)
@@ -106,7 +100,7 @@ func (readOnly* ReadOnly) commonReadOnlyJar(
     
     var stdOut bytes.Buffer
     var cmd * exec.Cmd = nil
-    
+
     if perfOn {
         cmd = exec.Command("perf", argSlice...)
     } else {
@@ -161,7 +155,7 @@ func (readOnly * ReadOnly) perfReadOnlyJarGCOff(
     readsOnOtherAtomNum  bool) * ReadOnlyResult {
 
     return readOnly.commonReadOnlyJar(
-        false, fqJar, numReads, numThreads, opType,persistentThreadPoolSize,
+        true, fqJar, numReads, numThreads, opType,persistentThreadPoolSize,
         maxThreadPoolSize,atomIntUUIDGeneration,false,woundWaitOn,
         readsOnOtherAtomNum)
 }
