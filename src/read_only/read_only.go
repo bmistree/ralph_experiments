@@ -43,7 +43,6 @@ const PERF_STAT_OUTPUT_FILENAME = "perf_stats.txt"
 const NUM_TIMES_TO_RUN_EACH_EXPERIMENT = 10
 
 
-
 func RunAll(jarDir,outputFolder string) {
     singleThreadWarmTests(jarDir,outputFolder)
     numThreadsTests(jarDir,outputFolder)
@@ -57,15 +56,19 @@ func RunAll(jarDir,outputFolder string) {
     memLeakTests(jarDir,outputFolder)
 }
 
-func commonReadOnlyJar(
-    fqJar string, params * Parameter) *ReadOnlyResult {
 
+/**
+ @returns --- Slice containing all of arguments to pass into exec.
+ */
+func argBuilder (fqJar string, params * Parameter) [] string {
     var argSlice [] string
     
     if params.perfOn {
         argSlice = append(
             argSlice,
-            []string{"stat","-o",PERF_STAT_OUTPUT_FILENAME,"java"}...)
+            []string{"perf","stat","-o",PERF_STAT_OUTPUT_FILENAME,"java"}...)
+    } else {
+        argSlice = append(argSlice,"java")
     }
     
     if !params.gcOn {
@@ -92,15 +95,16 @@ func commonReadOnlyJar(
     if params.readsOnOtherAtomNum {
         argSlice = append(argSlice,"-oan")
     }
+    return argSlice
+}
+
+func commonReadOnlyJar(
+    fqJar string, params * Parameter) *ReadOnlyResult {
+
+    argSlice := argBuilder(fqJar,params)
     
     var stdOut bytes.Buffer
-    var cmd * exec.Cmd = nil
-
-    if params.perfOn {
-        cmd = exec.Command("perf", argSlice...)
-    } else {
-        cmd = exec.Command("java", argSlice...)
-    }
+    cmd := exec.Command(argSlice[0], argSlice[1:]...)
     cmd.Stdout = &stdOut
 	err := cmd.Run()
 	if err != nil {
