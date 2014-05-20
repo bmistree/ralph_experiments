@@ -33,7 +33,7 @@ function plot(div_id_to_plot_on,data_list)
     var bar_chart = d3.select('#' + div_id_to_plot_on).
         append('svg:svg').
         attr('width', width).
-        attr('height', BAR_HEIGHT);
+        attr('height', BAR_HEIGHT+20);
 
     var x_rect_positions =
         d3.scale.linear().domain([0, num_conditions]).range([0, width]);
@@ -93,10 +93,29 @@ function plot(div_id_to_plot_on,data_list)
         attr("text-anchor", "middle").
         text(function(datum)
              {
-                 
                  return Math.round(datum.reads_per_second/1000);
              }).
         attr("fill", "white");
+
+
+    bar_chart.selectAll("text.yAxis").
+        data(data_list).
+        enter().append("svg:text").
+        attr("x",
+             function(datum, index)
+             {
+                 return x_rect_positions(index) + BAR_WIDTH;
+             }).
+        attr("y", BAR_HEIGHT ).
+        attr("dx", -BAR_WIDTH/2).
+        attr("text-anchor", "middle").
+        attr("style", "font-size: 12; font-family: Helvetica, sans-serif").
+        text(function(datum) {
+                 return Math.round(datum.num_reads/1000);
+             }).
+        attr('transform', 'translate(0, 18)').
+        style('fill','black').
+        attr("class", "yAxis");
 }
 
 
