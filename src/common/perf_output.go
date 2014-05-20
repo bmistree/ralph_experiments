@@ -4,6 +4,7 @@ import "fmt"
 import "regexp"
 import "strconv"
 import "log"
+import "strings"
 
 const CPUS_UTILIZED_STRING = "CPUs utilized"
 const CONTEXT_SWITCHES_STRING = "context-switches"
@@ -148,6 +149,5 @@ func findNumberStringInPerfOutput(perfOutput, category string) string {
     if len(submatchArray) != 2 {
         panic ("Incorrect number of elements in submatchArray")
     }
-
-    return submatchArray[1]
+    return strings.Replace(submatchArray[1],",","",-1)
 }

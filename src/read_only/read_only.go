@@ -8,6 +8,7 @@ import "strings"
 import "common"
 import "io/ioutil"
 
+
 /**
  Runs all read only performance tests for ralph
  */
@@ -41,8 +42,7 @@ const READ_NUM_ARG = "-nan"
 const READ_MAP_ARG = "-nam"
 
 const PERF_STAT_OUTPUT_FILENAME = "perf_stats.txt"
-const NUM_TIMES_TO_RUN_EACH_EXPERIMENT = 2
-
+const NUM_TIMES_TO_RUN_EACH_EXPERIMENT = 1
 
 
 type ReadOnly struct {
@@ -51,14 +51,14 @@ type ReadOnly struct {
 func(readOnly* ReadOnly) RunAll(jarDir,outputFolder string) {
     // singleThreadWarmTests(readOnly,jarDir,outputFolder)
     // numThreadsTests(readOnly,jarDir,outputFolder)
-    // perfNumThreadsTests(readOnly,jarDir,outputFolder)
+    perfNumThreadsTests(readOnly,jarDir,outputFolder)
     // perfGCOffNumThreadsTests(readOnly,jarDir,outputFolder)
-    perfLocksOffNumThreadsTests(readOnly,jarDir,outputFolder)
-    perfWoundWaitNumThreadsTests(readOnly,jarDir,outputFolder)
-    perfReadsOnDifferentObjectsNumThreadsTests(readOnly,jarDir,outputFolder)
+    // perfLocksOffNumThreadsTests(readOnly,jarDir,outputFolder)
+    // perfWoundWaitNumThreadsTests(readOnly,jarDir,outputFolder)
+    // perfReadsOnDifferentObjectsNumThreadsTests(readOnly,jarDir,outputFolder)
     // threadPoolSizeTests(readOnly, jarDir,outputFolder)
     // uuidGenerationTests(readOnly, jarDir,outputFolder)
-    memLeakTests(readOnly,jarDir,outputFolder)
+    // memLeakTests(readOnly,jarDir,outputFolder)
 }
 
 func (readOnly* ReadOnly) commonReadOnlyJar(
@@ -129,9 +129,8 @@ func (readOnly* ReadOnly) commonReadOnlyJar(
         }
         perfStatsString := string(perfStatsByteData[:])
         os.Remove(PERF_STAT_OUTPUT_FILENAME)
-    
-        perfOutput := common.ParsePerfOutput(perfStatsString)
-        perfOutput.PrintAll()
+
+        perfOutput = common.ParsePerfOutput(perfStatsString)
     }
 
     // returns read only resutls
