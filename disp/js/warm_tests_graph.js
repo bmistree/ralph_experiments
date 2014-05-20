@@ -15,7 +15,7 @@ function draw_read_warm_graph(data_list)
     var num_reads_list = [];
     for (var index in data_list)
     {
-        var condition_data = new NonPerfStats(data_list[index]);
+        var condition_data = new RunStats(data_list[index]);
         if (! (condition_data.reads_per_second in warm_graph_data_dict))
         {
             warm_graph_data_dict[condition_data.num_reads] = [];
@@ -29,13 +29,12 @@ function draw_read_warm_graph(data_list)
     num_reads_list.sort();
     
     // flatten data into a single average.  Each element in this list
-    // is a NonPerfStatsObject
+    // is a RunStats object
     var warm_graph_average_data_list = [];
     
     for (index in warm_graph_data_dict)
     {
-        var avg_stats =
-            non_perf_stats_avg_throughput(warm_graph_data_dict[index]);
+        var avg_stats = stats_avg_throughput(warm_graph_data_dict[index]);
         warm_graph_average_data_list.push(avg_stats);
     }
 

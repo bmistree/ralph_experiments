@@ -1,10 +1,8 @@
 
 
-
 function on_ready()
 {
     // just a simple test to ensure works and draws
-
     draw_read_warm_graph(
         [[1000,1,2,9056.70],
          [5000,1,2,23600.75],
