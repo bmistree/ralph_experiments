@@ -20,10 +20,51 @@ BAR_WIDTH = 40;
 BAR_CATEGORY_SPACING_WIDTH = 10;
 BAR_HEIGHT = 200;
 
-
-function PerfStats(data_list)
+/**
+ @param {string} div_id_to_plot_on
+ @param {list} data_list --- Each element is a RunStats obj
+ */
+function plot(div_id_to_plot_on,data_list)
 {
+    var num_conditions = data_list.length;
+    var width =
+        (BAR_WIDTH + BAR_CATEGORY_SPACING_WIDTH)*num_conditions;
+    
+    var bar_chart = d3.select('#' + div_id_to_plot_on).
+        append('svg:svg').
+        attr('width', width).
+        attr('height', BAR_HEIGHT);
 
+    var x_rect_positions =
+        d3.scale.linear().domain([0, num_conditions]).range([0, width]);
+    var y_heights =
+        d3.scale.linear().domain(
+            [0, d3.max(data_list,
+                       function(datum) { return datum.reads_per_second; })]).
+        rangeRound([0, BAR_HEIGHT]);
+    
+    // FIXME: don't understand semantics of selectAll
+    bar_chart.selectAll('rect').
+        data(data_list).
+        enter().
+        append("svg:rect").
+        attr("x",
+             function(datum, index)
+             {
+                 return x_rect_positions(index);
+             }).
+        attr("y",
+             function(datum)
+             {
+                 return BAR_HEIGHT - y_heights(datum.reads_per_second);
+             }).
+        attr("height",
+             function(datum)
+             {
+                 return y_heights(datum.reads_per_second);
+             }).
+        attr("width", BAR_WIDTH).
+        attr("fill", "steelblue");
 }
 
 function RunStats(data_list)
