@@ -117,7 +117,7 @@ func createTimestampsFromString(singleStringTrace string) [] * TimestampedEvent 
     individualStringEvents := strings.Split(singleStringTrace,"\n")
 
     timestampStringRegex := regexp.MustCompile(": ([0-9]+)\\|")
-    eventDescStringRegex := regexp.MustCompile("\\| (.)*$")
+    eventDescStringRegex := regexp.MustCompile("\\| (.*)?$")
     for _,individualStringEvent := range individualStringEvents {
 
         submatchArray :=
