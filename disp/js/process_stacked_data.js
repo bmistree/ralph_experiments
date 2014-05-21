@@ -23,6 +23,11 @@ function StackedSubData (time,label)
     this.label = label;
     // Each element is a StackedSubData object.
     this.children = [];
+
+    // get set in update_cumulatives.  corresponds to when in
+    // execution this started and ended.
+    this.start = null;
+    this.end = null;
 }
 
 /**
@@ -31,6 +36,24 @@ function StackedSubData (time,label)
 StackedSubData.prototype.add_child = function(child_to_add)
 {
     this.children.push(child_to_add);
+};
+
+/**
+ Instead of keeping track of the absolute time deltas, also keep track
+ of when, relative to other steps, this sub data ran.
+ */
+StackedSubData.prototype.update_cumulatives = function(start_offset)
+{
+    this.start = start_offset;
+    this.end = start_offset + this.time;
+
+    var prev_child_end_time = this.start;
+    for (var index in this.children)
+    {
+        var child = this.children[index];
+        child.update_cumulatives(prev_child_end_time);
+        prev_child_end_time = child.end;
+    }
 };
 
 /**
@@ -113,6 +136,7 @@ function process_stacked_data(data_list)
         var list_stacked_sub_data = process_traces(datum.traces);
         var averaged_stacked_sub_data =
             average_stacked_sub_data_list(list_stacked_sub_data);
+        averaged_stacked_sub_data.update_cumulatives(0);
         
         var stacked_run = new StackedRun(
             read_only_result.ops_per_second,
