@@ -24,6 +24,23 @@ func resultsToFile(results []*ReadOnlyResult, filename string) {
     }
 }
 
+func (readOnlyResult* ReadOnlyResult) toJSONString() string {
+    toReturn := "{"
+    toReturn += "\"num_reads\": " + strconv.FormatUint(uint64(readOnlyResult.numReads),10) + "," +
+        "\"num_threads\": " + strconv.FormatUint(uint64(readOnlyResult.numThreads),10) + "," +
+        "\"op_type\": " + strconv.FormatUint(uint64(readOnlyResult.opType),10) + "," +
+        "\"ops_per_second\": " + strconv.FormatFloat(readOnlyResult.opsPerSecond,'f',2,64) + ","
+
+    perfOutput := readOnlyResult.perfOutput
+    toReturn += "\"perf_output\": "
+    if perfOutput != nil {
+        toReturn += perfOutput.ToJSONString()
+    } else {
+        toReturn += "null"
+    }
+    return toReturn
+}
+
 // output will be num reads
 func (readOnlyResult* ReadOnlyResult) toCSVString () string {
     toReturn := ""

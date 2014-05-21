@@ -18,7 +18,7 @@ type TimestampedEvent struct {
     eventString string
 }
 
-func (logged * LoggedReadOnlyResult) toCSVString() string {
+func (logged * LoggedReadOnlyResult) toJSONString() string {
     return "FIXME: must fill in toCSVString"
 }
 
@@ -148,11 +148,15 @@ func createTimestampsFromString(singleStringTrace string) [] * TimestampedEvent 
 
 
 func loggedResultsToFile(results []*LoggedReadOnlyResult, filename string) {
-    fileOutputString := ""
-    for _, result := range results {
-        fileOutputString += result.toCSVString() + "\n"
+    fileOutputString := "["
+    for index, result := range results {
+        fileOutputString += result.toJSONString()
+        if index != (len(results) -1) {
+            fileOutputString += ","
+        }
     }
-
+    fileOutputString += "]"
+    
     // automatically creates file if doesn't exist
     err := ioutil.WriteFile(filename, []byte(fileOutputString), 0777)
     if err != nil {

@@ -48,6 +48,30 @@ func (perfOutput* PerfOutput) String() string {
         perfOutput.Branches, perfOutput.BranchMisses)
 }
 
+func (perfOutput* PerfOutput) ToJSONString() string {
+    return fmt.Sprintf(
+        ("{" + 
+        "\"cpus_utilized\": %f," +
+        "\"context_switches\": %d," +
+        "\"cpu_migrations\": %d," +
+        "\"page_faults\": %d," +
+        "\"cycles\": %d," +
+        "\"stalled_cycles_frontend\": %d," +
+        "\"frontend_cycles_idle\": %f," +
+        "\"stalled_cycles_backend\": %d," +
+        "\"backend_cycles_idle\": %f," +
+        "\"instructions\": %d," +
+        "\"branches\": %d," +
+        "\"branch_misses\": %d" +
+        "}"),
+        perfOutput.CpusUtilized,perfOutput.ContextSwitches,
+        perfOutput.CpuMigrations, perfOutput.PageFaults,
+        perfOutput.Cycles, perfOutput.StalledCyclesFrontend,
+        perfOutput.FrontendCyclesIdle, perfOutput.StalledCyclesBackend,
+        perfOutput.BackendCyclesIdle, perfOutput.Instructions,
+        perfOutput.Branches, perfOutput.BranchMisses)
+}
+
 func (perfOutput * PerfOutput) PrintAll() {
     fmt.Println(
         "%s: %f", CPUS_UTILIZED_STRING, perfOutput.CpusUtilized)
