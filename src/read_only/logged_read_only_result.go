@@ -79,7 +79,7 @@ func (logged * LoggedReadOnlyResult) toJSONString() string {
 529f429c-ff62-4e3a-8e76-f317b50d500b: 952598743546713| obj complete_commit top
 529f429c-ff62-4e3a-8e76-f317b50d500b: 952598743564614| obj complete_commit bottom
 529f429c-ff62-4e3a-8e76-f317b50d500b: 952598743593402| second_phase_commit bottom
-
+529f429c-ff62-4e3a-8e76-f317b50d500b: 952598743593402| begin_first_phase_commit bottom
 ...
 
 476c92b8-330a-4414-ba90-ac62e5f3d21c: 952598744168775| Creation
@@ -95,6 +95,7 @@ func (logged * LoggedReadOnlyResult) toJSONString() string {
 476c92b8-330a-4414-ba90-ac62e5f3d21c: 952598744328428| obj complete_commit top
 476c92b8-330a-4414-ba90-ac62e5f3d21c: 952598744344167| obj complete_commit bottom
 476c92b8-330a-4414-ba90-ac62e5f3d21c: 952598744366975| second_phase_commit bottom
+476c92b8-330a-4414-ba90-ac62e5f3d21c: 952598744366975| begin_first_phase_commit bottom
 ATOMIC_NUMBER_READ	 448.55989676932245
 
  */
@@ -105,7 +106,8 @@ func loggedTestRunOutputToResults(
     // each element of slice contains a text trace for a single
     // program, except the last, which just contains a string like
     // this: ATOMIC_NUMBER_READ 448.55989676932245
-    stringTraces := strings.SplitAfter(outputString,"second_phase_commit bottom")
+    stringTraces := strings.SplitAfter(
+        outputString,"begin_first_phase_commit bottom")
 
     // read overall throughput results
     overallThroughputString := stringTraces[len(stringTraces)-1]
