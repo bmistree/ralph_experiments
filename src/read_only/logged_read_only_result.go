@@ -117,10 +117,13 @@ func loggedTestRunOutputToResults(
     
     var allTraces [] * Trace
     for _, singleStringTrace := range stringTraces {
-        trace := Trace {
-            timestampedEvents: createTimestampsFromString(singleStringTrace),
+        timestampedEvents := createTimestampsFromString(singleStringTrace)
+        if timestampedEvents != nil {
+            trace := Trace {
+                timestampedEvents: timestampedEvents,
+            }
+            allTraces = append(allTraces,&trace)
         }
-        allTraces = append(allTraces,&trace)
     }
     
     // FIXME: actually parse output to get runtime for each logged
@@ -149,6 +152,9 @@ func loggedTestRunOutputToResults(
 476c92b8-330a-4414-ba90-ac62e5f3d21c: 952598744328428| obj complete_commit top
 476c92b8-330a-4414-ba90-ac62e5f3d21c: 952598744344167| obj complete_commit bottom
 476c92b8-330a-4414-ba90-ac62e5f3d21c: 952598744366975| second_phase_commit bottom
+
+Returns nil if incorrectly formatted trace (eg., if two threads
+interrupted each other when writing to std out).
 */
 func createTimestampsFromString(singleStringTrace string) [] * TimestampedEvent {
     var toReturn []*TimestampedEvent
@@ -163,17 +169,17 @@ func createTimestampsFromString(singleStringTrace string) [] * TimestampedEvent 
         submatchArray :=
             timestampStringRegex.FindStringSubmatch(individualStringEvent)
         if len(submatchArray) != 2 {
-            panic ("Incorrect number of elements in submatchArray")
+            return nil
         }
         timestamp, _err := strconv.ParseUint(submatchArray[1],10,64)
-        if _err != nil {            
-            panic("Could not convert timestamp to uint")
+        if _err != nil {
+            return nil
         }
 
         submatchArray =
             eventDescStringRegex.FindStringSubmatch(individualStringEvent)
         if len(submatchArray) != 2 {
-            panic ("Incorrect number of elements in submatchArray2")
+            return nil
         }
         
         timestampedEvent := TimestampedEvent {
