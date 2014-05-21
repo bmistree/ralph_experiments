@@ -15,7 +15,7 @@ type Parameter struct {
 
 func createDefaultParameter () *Parameter {
     toReturn := Parameter {
-        numReads: 100000,
+        numReads: DEFAULT_NUM_READS,
         numThreads: 1,
         opType: READ_ATOM_NUM,
         persistentThreadPoolSize: 0,
