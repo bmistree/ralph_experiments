@@ -65,7 +65,7 @@ func loggedTestRunOutputToResults(
     // each element of slice contains a text trace for a single
     // program, except the last, which just contains a string like
     // this: ATOMIC_NUMBER_READ 448.55989676932245
-    stringTraces := strings.Split(outputString,"second_phase_commit bottom")
+    stringTraces := strings.SplitAfter(outputString,"second_phase_commit bottom")
 
     // read overall throughput results
     overallThroughputString := stringTraces[len(stringTraces)-1]
@@ -126,14 +126,14 @@ func createTimestampsFromString(singleStringTrace string) [] * TimestampedEvent 
             panic ("Incorrect number of elements in submatchArray")
         }
         timestamp, _err := strconv.ParseUint(submatchArray[1],10,64)
-        if _err != nil {
+        if _err != nil {            
             panic("Could not convert timestamp to uint")
         }
 
         submatchArray =
             eventDescStringRegex.FindStringSubmatch(individualStringEvent)
         if len(submatchArray) != 2 {
-            panic ("Incorrect number of elements in submatchArray")
+            panic ("Incorrect number of elements in submatchArray2")
         }
         
         timestampedEvent := TimestampedEvent {
