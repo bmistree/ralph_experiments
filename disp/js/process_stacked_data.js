@@ -4,11 +4,11 @@
  @param {int} num_threads
  @param {StackedSubData}
  */
-function StackedRun(throughput, num_threads,list_stacked_sub_data)
+function StackedRun(throughput, num_threads,averaged_stacked_sub_data)
 {
     this.throughput = throughput;
     this.num_threads = num_threads;
-    this.list_stacked_sub_data = list_stacked_sub_data;
+    this.averaged_stacked_sub_data = averaged_stacked_sub_data;
 }
 
 
@@ -33,6 +33,61 @@ StackedSubData.prototype.add_child = function(child_to_add)
     this.children.push(child_to_add);
 };
 
+/**
+ @param {list} sub_data_list --- Each element is a StackedSubData
+ object.  Each StackedSubData object should have the same structure.
+ Run through all and average runtimes for each.
+ */
+function average_stacked_sub_data_list(sub_data_list)
+{
+    // First find average runtime of top nodes.  Then, go through all
+    // nodes' children and find average runtime of those, etc.
+    var total_node_runtime = 0;
+    var label = null;
+    var num_children = null;
+    for (var index in sub_data_list)
+    {
+        var sub_data = sub_data_list[index];
+        if (label === null)
+            label = sub_data.label;
+        if (num_children === null)
+            num_children = sub_data.children.length;
+        
+        // sanity check to ensure averaging across same elements
+        if (label != sub_data.label)
+            throw 'Mismatched labels when averaging';
+        if (num_children != sub_data.children.length)
+            throw 'Mismatched number of children';
+        // end sanity check
+        
+        total_node_runtime += sub_data.time;
+    }
+    var avg_node_runtime = total_node_runtime / sub_data_list.length;
+    var averaged_node = new StackedSubData(avg_node_runtime,label);
+
+    // go through children and create an average child for the average
+    // node to return.
+    var averaged_children = [];
+    for (var child_index=0; child_index < num_children; ++child_index)
+    {
+        // each element is a StackedSubData object corresponding to
+        // the child of a sub_data_list element with index
+        // child_index.
+        var child_index_children = [];
+        for (var sub_data_index in sub_data_list)
+        {
+            var sub_data = sub_data_list[sub_data_index];
+            child_index_children.push(sub_data.children[child_index]);
+        }
+
+        var averaged_child = average_stacked_sub_data_list(child_index_children);
+        averaged_node.add_child(averaged_child);
+    }
+    return averaged_node;
+}
+
+
+
 
 /**
  @param {list} data_list --- Each element is an object of the form:
@@ -56,9 +111,13 @@ function process_stacked_data(data_list)
         var datum = data_list[index];
         var read_only_result = datum.read_only_result;
         var list_stacked_sub_data = process_traces(datum.traces);
+        var averaged_stacked_sub_data =
+            average_stacked_sub_data_list(list_stacked_sub_data);
+        
         var stacked_run = new StackedRun(
             read_only_result.ops_per_second,
-            read_only_result.num_threads,list_stacked_sub_data);
+            read_only_result.num_threads,
+            averaged_stacked_sub_data);
         to_return.push(stacked_run);
     }
     EXAMPLE = to_return;
