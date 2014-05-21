@@ -4,6 +4,7 @@ import "io/ioutil"
 import "regexp"
 import "strings"
 import "strconv"
+import "fmt"
 
 type LoggedReadOnlyResult struct {
     readOnlyResult * ReadOnlyResult
@@ -18,8 +19,47 @@ type TimestampedEvent struct {
     eventString string
 }
 
+func (trace * Trace) toJSONString() string {
+    toReturn := "["
+    for index, timestampedEvent := range trace.timestampedEvents {
+        toReturn += timestampedEvent.toJSONString()
+        if index != (len(trace.timestampedEvents) -1) {
+            toReturn += ","
+        }
+    }
+    toReturn += "]"
+    return toReturn
+}
+
+func (timestampedEvent * TimestampedEvent) toJSONString() string {
+    toReturn := "{"
+    toReturn += fmt.Sprintf(
+        ("\"timestamp\": %d," +
+        "\"event_string\": \"%s\""),
+        timestampedEvent.timestamp,timestampedEvent.eventString)
+    toReturn += "}"
+    return toReturn
+}
+
 func (logged * LoggedReadOnlyResult) toJSONString() string {
-    return "FIXME: must fill in toCSVString"
+    toReturn := "{"
+    // add json for read only results
+    toReturn +=
+        "\"read_only_result\": " + logged.readOnlyResult.toJSONString() + "},"
+
+    // add json for traces
+    tracesJSONString := "\"traces\": ["
+    for index, trace := range logged.allTraces {
+        tracesJSONString += trace.toJSONString()
+        if index != (len(logged.allTraces) -1 ) {
+            tracesJSONString += ","
+        }
+    }
+    tracesJSONString += "]"
+
+    toReturn += tracesJSONString
+    toReturn += "}"
+    return toReturn
 }
 
 
