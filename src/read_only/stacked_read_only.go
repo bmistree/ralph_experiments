@@ -14,5 +14,5 @@ func stackedReadOnlyTests(jarDir,outputFolder string) {
         results = append(results,result)
     }
     loggedResultsToFile(
-        results, filepath.Join(outputFolder,UUID_GENERATION_OUTPUT_NAME))
+        results, filepath.Join(outputFolder,STACKED_OUTPUT_NAME))
 }
