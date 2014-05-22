@@ -121,7 +121,7 @@ StackedSubData.prototype.flatten = function(depth_offset,flatten_to_depth)
     {
         var child = this.children[index];
         to_return =
-            to_return.concat(child.flatten(flatten_to_depth,depth_offset+1));
+            to_return.concat(child.flatten(depth_offset+1,flatten_to_depth));
     }
     return to_return;
 };
