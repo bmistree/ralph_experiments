@@ -9,6 +9,9 @@ function on_ready()
     wound_wait_graph(WOUND_WAIT);
     gc_off_graph(GC_OFF);
     across_different_ops_graph(PERF_NUM_THREADS);
+    stacked_graphs(STACKED_GRAPH_DATA);
 }
+    
+
 
 
