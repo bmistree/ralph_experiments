@@ -17,7 +17,7 @@ const READ_ONLY_JAR_NAME = "read_perf.jar"
 const LOCKS_OFF_READ_ONLY_JAR_NAME = "locks_off_read_perf.jar"
 const STACKED_READ_ONLY_JAR_NAME = "logging_read_perf.jar"
 
-const DEFAULT_NUM_READS = 40000
+const DEFAULT_NUM_READS = 10000
 
 type operationType uint32
 const (

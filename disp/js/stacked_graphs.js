@@ -2,7 +2,7 @@ STACKED_DIV_ID = "stacked_tests";
 
 STACKED_BAR_WIDTH = 40;
 STACKED_BAR_SPACING = 30;
-STACKED_BAR_HEIGHT = 800;
+STACKED_BAR_HEIGHT = 1200;
 
 
 function stacked_graphs(stacked_graph_data)
@@ -176,9 +176,28 @@ ColorDict.prototype.get_color = function (label)
 {
     if (!(label in this.observed_labels))
     {
-        this.observed_labels[label] = colorbrewer.Set1[9][this.color_index];
+        var color_list_to_use = colorbrewer.Set3[12];
+        var color_to_use = random_color();
+        console.log(color_list_to_use.length);
+        if (this.color_index < color_list_to_use.length)
+            color_to_use = color_list_to_use[this.color_index];
+
+        this.observed_labels[label] = color_to_use;
         ++this.color_index;
     }
     var color = this.observed_labels[label];
     return color;
 };
+
+/**
+ From first answer on
+ http://stackoverflow.com/questions/1484506/random-color-generator-in-javascript
+ */
+function random_color()
+{
+    var letters = '0123456789ABCDEF'.split('');
+    var color = '#';
+    for (var i = 0; i < 6; i++ )
+        color += letters[Math.floor(Math.random() * 16)];
+    return color;
+}
