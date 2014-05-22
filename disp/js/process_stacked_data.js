@@ -268,7 +268,7 @@ function process_single_trace(trace_list)
     var total_time = time_last - time_first;
     // using unique label for first event, Total.
     var to_return = new StackedSubData(total_time,"Total",0);
-
+    
     var children_array =
         create_sub_data_children(trace_list.slice(1),time_first);
     for (var index in children_array)
@@ -311,9 +311,10 @@ function create_sub_data_children(trace_list,time_offset)
                 // generate subdata item
                 var bottom_timestamp = datum.timestamp;
                 var total_time = bottom_timestamp - top_timestamp;
-                var start_time = datum.timestamp - time_offset;
+                var start_time = top_timestamp - time_offset;
                 var sub_data =
                     new StackedSubData(total_time,top_prefix,start_time);
+                
                 var sub_data_children =
                     create_sub_data_children(intermediate_entries,time_offset);
                 for (var child_index in sub_data_children)
