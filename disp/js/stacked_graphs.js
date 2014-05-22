@@ -2,7 +2,7 @@ STACKED_DIV_ID = "stacked_tests";
 
 STACKED_BAR_WIDTH = 40;
 STACKED_BAR_SPACING = 30;
-STACKED_BAR_HEIGHT = 400;
+STACKED_BAR_HEIGHT = 800;
 
 
 function stacked_graphs(stacked_graph_data)
@@ -18,24 +18,40 @@ function stacked_graphs(stacked_graph_data)
  */
 function draw_stacked_graphs(stacked_run_list,div_id_to_plot_on)
 {
-    draw_single_stacked_run(stacked_run_list[0],div_id_to_plot_on);
-}
-
-function draw_single_stacked_run(stacked_run,div_id_to_plot_on)
-{
-    var sub_data = stacked_run.averaged_stacked_sub_data;
-    var relative_end_time = sub_data.end;
-    
-    var max_depth = sub_data.max_depth();
-    var flattened_data_list = sub_data.flatten(0,max_depth);
-
-    for (var i in flattened_data_list)
+    //draw_single_stacked_run(stacked_run_list[0],div_id_to_plot_on);
+    var flattened_sub_data_list = [];
+    var max_end_time = 0;
+    var max_depth = 0;
+    for (var stacked_run_index in stacked_run_list)
     {
-        var flattened_datum = flattened_data_list[i];
-        flattened_datum.debug_print();
+        var stacked_run = stacked_run_list[stacked_run_index];
+        if (stacked_run.averaged_stacked_sub_data.end > max_end_time)
+            max_end_time = stacked_run.averaged_stacked_sub_data.end;
+
+        var depth = stacked_run.averaged_stacked_sub_data.max_depth();
+        if (depth > max_depth)
+            max_depth = depth;
     }
 
-    var full_graph_width = max_depth * (STACKED_BAR_WIDTH + STACKED_BAR_SPACING);
+    // flatten data
+    var all_flattened_data = [];
+    for (stacked_run_index in stacked_run_list)
+    {
+        var stacked_run = stacked_run_list[stacked_run_index];
+        var additional_fields = {
+            num_threads: stacked_run.num_threads,
+            graph_index: stacked_run_index
+            };
+        var run_flattened_data =
+            stacked_run.averaged_stacked_sub_data.flatten(
+                0,max_depth,additional_fields);
+        all_flattened_data = all_flattened_data.concat(run_flattened_data);
+    }
+
+    var single_graph_width =
+        max_depth * (STACKED_BAR_WIDTH + STACKED_BAR_SPACING);
+    var full_graph_width = single_graph_width * stacked_run_list.length;
+
     
     // indices are strings, values are color strings.  Essentially,
     // there are repeated
@@ -43,10 +59,10 @@ function draw_single_stacked_run(stacked_run,div_id_to_plot_on)
 
     // where to start rectangle x-position form
     var x_rect_positions =
-        d3.scale.linear().domain([0, max_depth]).range([20, full_graph_width]);
+        d3.scale.linear().domain([0, max_depth]).range([20, single_graph_width]);
     // how high to make each rectangle
     var y_heights =
-        d3.scale.linear().domain([0,relative_end_time]).
+        d3.scale.linear().domain([0,max_end_time]).
         rangeRound([0,STACKED_BAR_HEIGHT]);
 
     var bar_chart = d3.select('#' + div_id_to_plot_on).
@@ -56,18 +72,21 @@ function draw_single_stacked_run(stacked_run,div_id_to_plot_on)
 
     // actually draw the bars
     bar_chart.selectAll('rect').
-        data(flattened_data_list).
+        data(all_flattened_data).
         enter().
         append('svg:rect').
         attr('x',
              function(flattened_datum)
              {
-                 return rect_x_func(flattened_datum,x_rect_positions);
+                 var rect_x = rect_x_func(
+                     flattened_datum,x_rect_positions,single_graph_width);
+                 return rect_x;
              }).
         attr('y',
              function(flattened_datum)
              {
-                 return rect_y_func(flattened_datum,y_heights);
+                 var rect_y = rect_y_func(flattened_datum,y_heights);
+                 return rect_y;
              }).
         attr('height',
              function(flattened_datum)
@@ -83,13 +102,14 @@ function draw_single_stacked_run(stacked_run,div_id_to_plot_on)
 
     // add labels to bar regions
     bar_chart.selectAll('text').
-        data(flattened_data_list).
+        data(all_flattened_data).
         enter().
         append('svg:text').
         attr('x',
              function(flattened_datum)
              {
-                 return text_x_func(flattened_datum,x_rect_positions);
+                 return text_x_func(
+                     flattened_datum,x_rect_positions,single_graph_width);
              }).
         attr('y',
              function(flattened_datum)
@@ -101,13 +121,21 @@ function draw_single_stacked_run(stacked_run,div_id_to_plot_on)
              {
                  // rotate: go to axis specified by x,y and rotate
                  // this element degrees around it.
+                 var x = text_x_func(flattened_datum,x_rect_positions,single_graph_width);
                  var y = text_y_func(flattened_datum,y_heights);
-                 var x = text_x_func(flattened_datum,x_rect_positions);
                  var transform_to_perform = 'rotate(270,' + x + ',' + y + ')';
                  return transform_to_perform;
              }).
         text(function(flattened_datum)
              {
+                 if (flattened_datum.label == 'Total')
+                 {
+                     var root_time_ns =
+                         flattened_datum.end - flattened_datum.start;
+                     var root_time_us = root_time_ns / 1000;
+                     return 'Num threads: ' + flattened_datum.num_threads +
+                         '; Total time: ' + root_time_us.toFixed(2) + 'us';
+                 }
                  return flattened_datum.label;
              });
 
@@ -117,18 +145,20 @@ function draw_single_stacked_run(stacked_run,div_id_to_plot_on)
  Take in a flattened_datum and return the x position that its text
  label should be drawn.
  */
-function text_x_func(flattened_datum,x_rect_positions)
+function text_x_func(flattened_datum,x_rect_positions,single_graph_width)
 {
-    return rect_x_func(flattened_datum,x_rect_positions) - 5;
+    return rect_x_func(
+        flattened_datum,x_rect_positions,single_graph_width) - 5;
 }
 function text_y_func(flattened_datum,y_heights)
 {
     return STACKED_BAR_HEIGHT - y_heights(flattened_datum.start);
 }
 
-function rect_x_func(flattened_datum,x_rect_positions)
+function rect_x_func(flattened_datum,x_rect_positions,single_graph_width)
 {
-    return x_rect_positions(flattened_datum.depth);
+    return x_rect_positions(flattened_datum.depth) +
+        flattened_datum.graph_index*single_graph_width;
 }
 function rect_y_func(flattened_datum,y_heights)
 {

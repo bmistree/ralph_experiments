@@ -11,7 +11,3 @@ function on_ready()
     across_different_ops_graph(PERF_NUM_THREADS);
     stacked_graphs(STACKED_GRAPH_DATA);
 }
-    
-
-
-

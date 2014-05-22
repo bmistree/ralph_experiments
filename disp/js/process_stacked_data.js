@@ -54,13 +54,17 @@ StackedSubData.prototype.max_depth = function()
 };
 
 
-function FlattenedData(label, depth, start, end)
+function FlattenedData(label, depth, start, end,additional_fields)
 {
     this.label = label;
     this.depth = depth;
     this.start = start;
     this.end = end;
+
+    for (var index in additional_fields)
+        this[index] = additional_fields[index];
 }
+
 FlattenedData.prototype.debug_print = function ()
 {
     console.log(
@@ -97,14 +101,20 @@ FlattenedData.prototype.debug_print = function ()
     d: depth 3,
     e: depth 3
  ]
+
+
+ @param{object} additional_fields --- Should tag all new
+ FlattenedDatums with these fields.
  */
-StackedSubData.prototype.flatten = function(depth_offset,flatten_to_depth)
+StackedSubData.prototype.flatten =
+    function(depth_offset,flatten_to_depth,additional_fields)
 {
     var to_return = [];
     var max_depth = this.max_depth();
 
     to_return.push(
-        new FlattenedData(this.label,depth_offset,this.start,this.end));
+        new FlattenedData(this.label,depth_offset,this.start,this.end,
+                          additional_fields));
     
     if (this.children.length == 0)
     {
@@ -113,7 +123,8 @@ StackedSubData.prototype.flatten = function(depth_offset,flatten_to_depth)
         for (var i = depth_offset+1; i < flatten_to_depth; ++i)
         {
             to_return.push(
-                new FlattenedData(this.label,i,this.start,this.end));
+                new FlattenedData(this.label,i,this.start,this.end,
+                                 additional_fields));
         }
     }
     
@@ -121,7 +132,9 @@ StackedSubData.prototype.flatten = function(depth_offset,flatten_to_depth)
     {
         var child = this.children[index];
         to_return =
-            to_return.concat(child.flatten(depth_offset+1,flatten_to_depth));
+            to_return.concat(
+                child.flatten(
+                    depth_offset+1,flatten_to_depth,additional_fields));
     }
     return to_return;
 };
@@ -209,10 +222,6 @@ function process_stacked_data(data_list)
         var list_stacked_sub_data = process_traces(datum.traces);
         var averaged_stacked_sub_data =
             average_stacked_sub_data_list(list_stacked_sub_data);
-
-        var root_time_us = averaged_stacked_sub_data.time / 1000;
-        averaged_stacked_sub_data.label =
-            'Total: ' + root_time_us.toFixed(2) + 'us';
         
         var stacked_run = new StackedRun(
             read_only_result.ops_per_second,
