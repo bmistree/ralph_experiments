@@ -38,7 +38,7 @@ function draw_single_stacked_run(stacked_run,div_id_to_plot_on)
     
     // indices are strings, values are color strings.  Essentially,
     // there are repeated
-    var color_dict = {};
+    var color_dict = new ColorDict();
 
     // where to start rectangle x-position form
     var x_rect_positions =
@@ -73,6 +73,27 @@ function draw_single_stacked_run(stacked_run,div_id_to_plot_on)
                  return y_heights(datum.end - datum.start);
              }).
         attr('width', STACKED_BAR_WIDTH).
-        attr('fill','steelblue');
+        attr('fill',
+             function (datum)
+             {
+                 return color_dict.get_color(datum.label);
+             });
 }
 
+function ColorDict()
+{
+    this.color_index = 0;
+    this.observed_labels = {};
+}
+
+ColorDict.prototype.get_color = function (label)
+{
+    if (!(label in this.observed_labels))
+    {
+        this.observed_labels[label] = colorbrewer.Set1[9][this.color_index];
+        ++this.color_index;
+    }
+    var color = this.observed_labels[label];
+    console.log(color);
+    return color;
+};
