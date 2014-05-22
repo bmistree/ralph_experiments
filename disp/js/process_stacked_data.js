@@ -11,11 +11,12 @@ function StackedRun(throughput, num_threads,averaged_stacked_sub_data)
     this.averaged_stacked_sub_data = averaged_stacked_sub_data;
 }
 
-
 /**
  @param {int} time --- The time it took for this operation to complete
 
  @param {string} label --- The name of this operation
+
+ Note: with children, has a tree structure.
  */
 function StackedSubData (time,label)
 {
@@ -36,6 +37,22 @@ function StackedSubData (time,label)
 StackedSubData.prototype.add_child = function(child_to_add)
 {
     this.children.push(child_to_add);
+};
+
+/**
+ Returns the maximum depth of this subdata tree.
+ */
+StackedSubData.prototype.max_depth = function()
+{
+    var max_child_depth = 0;
+    for (var index in this.children)
+    {
+        var child_depth = this.children[index].max_depth();
+        if (child_depth > max_child_depth)
+            max_child_depth = child_depth;
+    }
+
+    return 1 + max_child_depth;
 };
 
 /**
