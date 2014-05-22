@@ -55,6 +55,78 @@ StackedSubData.prototype.max_depth = function()
     return 1 + max_child_depth;
 };
 
+function FlattenedData(label, depth, start, end)
+{
+    this.label = label;
+    this.depth = depth;
+    this.start = start;
+    this.end = end;
+}
+FlattenedData.prototype.debug_print = function ()
+{
+    console.log(
+        this.label + " " + this.depth + "; " + this.start +
+            "-" + this.end);
+};
+
+
+
+/**
+ @param {int} depth_offset --- How many levels down tree we are.
+ 
+ @param {int} flatten_to_depth --- Total depth of tree.  If current
+ node terminates, then return
+ 
+   (flatten_to_depth - depth_offset)
+
+ copies of this node with different depths.
+ 
+ @returns {list} --- Each element is a FlattenedData object.
+
+ Example:
+      a
+     / \
+    b  c
+      / \
+     d   e
+
+ [
+    a: depth 1,
+    b: depth 2,
+    b: depth 3,
+    c: depth 2,
+    d: depth 3,
+    e: depth 3
+ ]
+ */
+StackedSubData.prototype.flatten = function(depth_offset,flatten_to_depth)
+{
+    var to_return = [];
+    var max_depth = this.max_depth();
+
+    to_return.push(
+        new FlattenedData(this.label,depth_offset,this.start,this.end));
+    
+    if (this.children.length == 0)
+    {
+        // this is a leaf node.  we need to fill in to_return with
+        // copies of self
+        for (var i = depth_offset+1; i < flatten_to_depth; ++i)
+        {
+            to_return.push(
+                new FlattenedData(this.label,i,this.start,this.end));
+        }
+    }
+    
+    for (var index in this.children)
+    {
+        var child = this.children[index];
+        to_return =
+            to_return.concat(child.flatten(flatten_to_depth,depth_offset+1));
+    }
+    return to_return;
+};
+
 /**
  Instead of keeping track of the absolute time deltas, also keep track
  of when, relative to other steps, this sub data ran.
