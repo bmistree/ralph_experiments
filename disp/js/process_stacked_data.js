@@ -18,17 +18,15 @@ function StackedRun(throughput, num_threads,averaged_stacked_sub_data)
 
  Note: with children, has a tree structure.
  */
-function StackedSubData (time,label)
+function StackedSubData (time,label,start)
 {
     this.time = time;
     this.label = label;
     // Each element is a StackedSubData object.
     this.children = [];
 
-    // get set in update_cumulatives.  corresponds to when in
-    // execution this started and ended.
-    this.start = null;
-    this.end = null;
+    this.start = start;
+    this.end = start + time;
 }
 
 /**
@@ -54,6 +52,7 @@ StackedSubData.prototype.max_depth = function()
 
     return 1 + max_child_depth;
 };
+
 
 function FlattenedData(label, depth, start, end)
 {
@@ -127,23 +126,6 @@ StackedSubData.prototype.flatten = function(depth_offset,flatten_to_depth)
     return to_return;
 };
 
-/**
- Instead of keeping track of the absolute time deltas, also keep track
- of when, relative to other steps, this sub data ran.
- */
-StackedSubData.prototype.update_cumulatives = function(start_offset)
-{
-    this.start = start_offset;
-    this.end = start_offset + this.time;
-
-    var prev_child_end_time = this.start;
-    for (var index in this.children)
-    {
-        var child = this.children[index];
-        child.update_cumulatives(prev_child_end_time);
-        prev_child_end_time = child.end;
-    }
-};
 
 /**
  @param {list} sub_data_list --- Each element is a StackedSubData
@@ -155,6 +137,7 @@ function average_stacked_sub_data_list(sub_data_list)
     // First find average runtime of top nodes.  Then, go through all
     // nodes' children and find average runtime of those, etc.
     var total_node_runtime = 0;
+    var total_start = 0;
     var label = null;
     var num_children = null;
     for (var index in sub_data_list)
@@ -173,10 +156,12 @@ function average_stacked_sub_data_list(sub_data_list)
         // end sanity check
         
         total_node_runtime += sub_data.time;
+        total_start += sub_data.start;
     }
     var avg_node_runtime = total_node_runtime / sub_data_list.length;
-    var averaged_node = new StackedSubData(avg_node_runtime,label);
-
+    var avg_start = total_start / sub_data_list.length;
+    var averaged_node = new StackedSubData(avg_node_runtime,label,avg_start);
+    
     // go through children and create an average child for the average
     // node to return.
     var averaged_children = [];
@@ -214,7 +199,6 @@ function average_stacked_sub_data_list(sub_data_list)
 
  @returns{list} --- Each element is a StackedRun object.
  */
-EXAMPLE = null;
 function process_stacked_data(data_list)
 {
     var to_return = [];
@@ -225,7 +209,6 @@ function process_stacked_data(data_list)
         var list_stacked_sub_data = process_traces(datum.traces);
         var averaged_stacked_sub_data =
             average_stacked_sub_data_list(list_stacked_sub_data);
-        averaged_stacked_sub_data.update_cumulatives(0);
         
         var stacked_run = new StackedRun(
             read_only_result.ops_per_second,
@@ -233,7 +216,6 @@ function process_stacked_data(data_list)
             averaged_stacked_sub_data);
         to_return.push(stacked_run);
     }
-    EXAMPLE = to_return;
     return to_return;
 }
 
@@ -285,9 +267,10 @@ function process_single_trace(trace_list)
     var time_last = trace_list[trace_list.length -1].timestamp;
     var total_time = time_last - time_first;
     // using unique label for first event, Total.
-    var to_return = new StackedSubData(total_time,"Total");
+    var to_return = new StackedSubData(total_time,"Total",0);
 
-    var children_array = create_sub_data_children(trace_list.slice(1));
+    var children_array =
+        create_sub_data_children(trace_list.slice(1),time_first);
     for (var index in children_array)
         to_return.add_child(children_array[index]);
     return to_return;
@@ -298,9 +281,13 @@ function process_single_trace(trace_list)
  @param {list} trace_list --- @see process_stacked_data, except without
  first entry.
 
+ @param {int} start_time_offset --- Data is logged as absolute times.
+ Use time_offset to subtract off time experiment was started to get
+ times since experiment began.
+ 
  @returns {list} --- Each element 
  */
-function create_sub_data_children(trace_list)
+function create_sub_data_children(trace_list,time_offset)
 {
     var to_return  = [];
 
@@ -324,9 +311,11 @@ function create_sub_data_children(trace_list)
                 // generate subdata item
                 var bottom_timestamp = datum.timestamp;
                 var total_time = bottom_timestamp - top_timestamp;
-                var sub_data = new StackedSubData(total_time,top_prefix);
+                var start_time = datum.timestamp - time_offset;
+                var sub_data =
+                    new StackedSubData(total_time,top_prefix,start_time);
                 var sub_data_children =
-                    create_sub_data_children(intermediate_entries);
+                    create_sub_data_children(intermediate_entries,time_offset);
                 for (var child_index in sub_data_children)
                     sub_data.add_child(sub_data_children[child_index]);
                 to_return.push(sub_data);
