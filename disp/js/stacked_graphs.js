@@ -29,11 +29,11 @@ function draw_single_stacked_run(stacked_run,div_id_to_plot_on)
     var max_depth = sub_data.max_depth();
     var flattened_data_list = sub_data.flatten(0,max_depth);
 
-    // for (var i in flattened_data_list)
-    // {
-    //     var flattened_datum = flattened_data_list[i];
-    //     flattened_datum.debug_print();
-    // }
+    for (var i in flattened_data_list)
+    {
+        var flattened_datum = flattened_data_list[i];
+        flattened_datum.debug_print();
+    }
 
     var full_graph_width = max_depth * (STACKED_BAR_WIDTH + STACKED_BAR_SPACING);
     
@@ -60,27 +60,25 @@ function draw_single_stacked_run(stacked_run,div_id_to_plot_on)
         enter().
         append('svg:rect').
         attr('x',
-             function(flattened_datum, index)
+             function(flattened_datum)
              {
-                 return x_rect_positions(flattened_datum.depth);
+                 return rect_x_func(flattened_datum,x_rect_positions);
              }).
         attr('y',
-             function(datum)
+             function(flattened_datum)
              {
-                 // top left corner
-                 var top_left_corner = STACKED_BAR_HEIGHT - y_heights(datum.end);
-                 return top_left_corner;
+                 return rect_y_func(flattened_datum,y_heights);
              }).
         attr('height',
-             function(datum)
+             function(flattened_datum)
              {
-                 return y_heights(datum.end - datum.start);
+                 return y_heights(flattened_datum.end - flattened_datum.start);
              }).
         attr('width', STACKED_BAR_WIDTH).
         attr('fill',
-             function (datum)
+             function (flattened_datum)
              {
-                 return color_dict.get_color(datum.label);
+                 return color_dict.get_color(flattened_datum.label);
              });
 
     // add labels to bar regions
@@ -91,23 +89,20 @@ function draw_single_stacked_run(stacked_run,div_id_to_plot_on)
         attr('x',
              function(flattened_datum)
              {
-                 // return x_rect_positions(flattened_datum.depth) - 10;
-                 return x_rect_positions(flattened_datum.depth);
+                 return text_x_func(flattened_datum,x_rect_positions);
              }).
         attr('y',
              function(flattened_datum)
              {
-                 var returned_y =
-                     (STACKED_BAR_HEIGHT - y_heights(flattened_datum.start));
-                 return returned_y;
+                 return text_y_func(flattened_datum,y_heights);
              }).
         attr('transform',
              function (flattened_datum)
              {
                  // rotate: go to axis specified by x,y and rotate
                  // this element degrees around it.
-                 var y = STACKED_BAR_HEIGHT - y_heights(flattened_datum.start);
-                 var x = x_rect_positions(flattened_datum.depth);
+                 var y = text_y_func(flattened_datum,y_heights);
+                 var x = text_x_func(flattened_datum,x_rect_positions);
                  var transform_to_perform = 'rotate(270,' + x + ',' + y + ')';
                  return transform_to_perform;
              }).
@@ -116,9 +111,29 @@ function draw_single_stacked_run(stacked_run,div_id_to_plot_on)
                  return flattened_datum.label;
              });
 
-                 
-        
-    
+}
+
+/**
+ Take in a flattened_datum and return the x position that its text
+ label should be drawn.
+ */
+function text_x_func(flattened_datum,x_rect_positions)
+{
+    return rect_x_func(flattened_datum,x_rect_positions) - 5;
+}
+function text_y_func(flattened_datum,y_heights)
+{
+    return STACKED_BAR_HEIGHT - y_heights(flattened_datum.start);
+}
+
+function rect_x_func(flattened_datum,x_rect_positions)
+{
+    return x_rect_positions(flattened_datum.depth);
+}
+function rect_y_func(flattened_datum,y_heights)
+{
+    // top left corner
+    return STACKED_BAR_HEIGHT - y_heights(flattened_datum.end);
 }
 
 function ColorDict()
