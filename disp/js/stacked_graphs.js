@@ -1,8 +1,8 @@
 STACKED_DIV_ID = "stacked_tests";
 
-STACKED_BAR_WIDTH = 30;
-STACKED_BAR_SPACING = 10;
-STACKED_BAR_HEIGHT = 200;
+STACKED_BAR_WIDTH = 80;
+STACKED_BAR_SPACING = 40;
+STACKED_BAR_HEIGHT = 400;
 
 
 function stacked_graphs(stacked_graph_data)
@@ -25,14 +25,15 @@ function draw_single_stacked_run(stacked_run,div_id_to_plot_on)
 {
     var sub_data = stacked_run.averaged_stacked_sub_data;
     var relative_end_time = sub_data.end;
+    
     var max_depth = sub_data.max_depth();
     var flattened_data_list = sub_data.flatten(0,max_depth);
 
-    for (var i in flattened_data_list)
-    {
-        var flattened_datum = flattened_data_list[i];
-        flattened_datum.debug_print();
-    }
+    // for (var i in flattened_data_list)
+    // {
+    //     var flattened_datum = flattened_data_list[i];
+    //     flattened_datum.debug_print();
+    // }
 
     var full_graph_width = max_depth * (STACKED_BAR_WIDTH + STACKED_BAR_SPACING);
     
@@ -42,7 +43,7 @@ function draw_single_stacked_run(stacked_run,div_id_to_plot_on)
 
     // where to start rectangle x-position form
     var x_rect_positions =
-        d3.scale.linear().domain([0, max_depth]).range([0, full_graph_width]);
+        d3.scale.linear().domain([0, max_depth]).range([20, full_graph_width]);
     // how high to make each rectangle
     var y_heights =
         d3.scale.linear().domain([0,relative_end_time]).
@@ -52,6 +53,8 @@ function draw_single_stacked_run(stacked_run,div_id_to_plot_on)
         append('svg:svg').
         attr('width', full_graph_width).
         attr('height', STACKED_BAR_HEIGHT+60);
+
+    // actually draw the bars
     bar_chart.selectAll('rect').
         data(flattened_data_list).
         enter().
@@ -65,7 +68,8 @@ function draw_single_stacked_run(stacked_run,div_id_to_plot_on)
              function(datum)
              {
                  // top left corner
-                 return STACKED_BAR_HEIGHT - y_heights(datum.end);
+                 var top_left_corner = STACKED_BAR_HEIGHT - y_heights(datum.end);
+                 return top_left_corner;
              }).
         attr('height',
              function(datum)
@@ -78,6 +82,40 @@ function draw_single_stacked_run(stacked_run,div_id_to_plot_on)
              {
                  return color_dict.get_color(datum.label);
              });
+
+    // add labels to bar regions
+    bar_chart.selectAll('text').
+        data(flattened_data_list).
+        enter().
+        append('svg:text').
+        attr('x',
+             function(flattened_datum)
+             {
+                 return x_rect_positions(flattened_datum.depth) - 10;
+             }).
+        attr('y',
+             function(flattened_datum)
+             {
+                 var returned_y =
+                     (STACKED_BAR_HEIGHT - y_heights(flattened_datum.end));
+                 return returned_y;
+             }).
+        attr('transform',
+             function (flattened_datum)
+             {
+                 var bar_height = y_heights(flattened_datum.end - flattened_datum.start);
+                 var y = (STACKED_BAR_HEIGHT - y_heights(flattened_datum.end) - bar_height);
+                 var x = x_rect_positions(flattened_datum.depth) - 10;
+                 return 'rotate(270,' + x + ',' + y + ')';
+             }).
+        text(function(flattened_datum)
+             {
+                 return flattened_datum.label;
+             });
+
+                 
+        
+    
 }
 
 function ColorDict()
@@ -94,6 +132,5 @@ ColorDict.prototype.get_color = function (label)
         ++this.color_index;
     }
     var color = this.observed_labels[label];
-    console.log(color);
     return color;
 };
