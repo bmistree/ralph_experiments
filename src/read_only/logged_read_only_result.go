@@ -158,14 +158,14 @@ func loggedTestRunOutputToResults(
 Returns nil if incorrectly formatted trace (eg., if two threads
 interrupted each other when writing to std out).
 */
+var timestampStringRegex *regexp.Regexp = regexp.MustCompile(": ([0-9]+)\\|")
+var eventDescStringRegex *regexp.Regexp = regexp.MustCompile("\\| (.*)?$")
 func createTimestampsFromString(singleStringTrace string) [] * TimestampedEvent {
     var toReturn []*TimestampedEvent
     
     singleStringTrace = strings.TrimSpace(singleStringTrace)
     individualStringEvents := strings.Split(singleStringTrace,"\n")
 
-    timestampStringRegex := regexp.MustCompile(": ([0-9]+)\\|")
-    eventDescStringRegex := regexp.MustCompile("\\| (.*)?$")
     for _,individualStringEvent := range individualStringEvents {
 
         submatchArray :=

@@ -17,7 +17,7 @@ const READ_ONLY_JAR_NAME = "read_perf.jar"
 const LOCKS_OFF_READ_ONLY_JAR_NAME = "locks_off_read_perf.jar"
 const STACKED_READ_ONLY_JAR_NAME = "logging_read_perf.jar"
 
-const DEFAULT_NUM_READS = 100
+const DEFAULT_NUM_READS = 40000
 
 type operationType uint32
 const (
@@ -42,20 +42,21 @@ const READ_NUM_ARG = "-nan"
 const READ_MAP_ARG = "-nam"
 
 const PERF_STAT_OUTPUT_FILENAME = "perf_stats.txt"
-const NUM_TIMES_TO_RUN_EACH_EXPERIMENT = 10
+const NUM_TIMES_TO_RUN_EACH_EXPERIMENT = 1
 
 
 func RunAll(jarDir,outputFolder string) {
-    singleThreadWarmTests(jarDir,outputFolder)
-    numThreadsTests(jarDir,outputFolder)
-    perfNumThreadsTests(jarDir,outputFolder)
-    perfGCOffNumThreadsTests(jarDir,outputFolder)
-    perfLocksOffNumThreadsTests(jarDir,outputFolder)
-    perfWoundWaitNumThreadsTests(jarDir,outputFolder)
-    perfReadsOnDifferentObjectsNumThreadsTests(jarDir,outputFolder)
-    threadPoolSizeTests(jarDir,outputFolder)
-    uuidGenerationTests(jarDir,outputFolder)
-    memLeakTests(jarDir,outputFolder)
+    // singleThreadWarmTests(jarDir,outputFolder)
+    // numThreadsTests(jarDir,outputFolder)
+    // perfNumThreadsTests(jarDir,outputFolder)
+    // perfGCOffNumThreadsTests(jarDir,outputFolder)
+    // perfLocksOffNumThreadsTests(jarDir,outputFolder)
+    // perfWoundWaitNumThreadsTests(jarDir,outputFolder)
+    // perfReadsOnDifferentObjectsNumThreadsTests(jarDir,outputFolder)
+    // threadPoolSizeTests(jarDir,outputFolder)
+    // uuidGenerationTests(jarDir,outputFolder)
+    // memLeakTests(jarDir,outputFolder)
+    stackedReadOnlyTests(jarDir,outputFolder)
 }
 
 
