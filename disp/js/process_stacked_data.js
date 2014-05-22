@@ -267,7 +267,11 @@ function process_single_trace(trace_list)
     var time_last = trace_list[trace_list.length -1].timestamp;
     var total_time = time_last - time_first;
     // using unique label for first event, Total.
-    var to_return = new StackedSubData(total_time,"Total",0);
+
+    // total time starts in ns
+    var total_time_ms = total_time/1000000;
+    var total_time_label = "Total: " + total_time_ms + "ms";
+    var to_return = new StackedSubData(total_time,total_time_label,0);
     
     var children_array =
         create_sub_data_children(trace_list.slice(1),time_first);
