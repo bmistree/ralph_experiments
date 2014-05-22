@@ -150,7 +150,7 @@ function average_stacked_sub_data_list(sub_data_list)
         
         // sanity check to ensure averaging across same elements
         if (label != sub_data.label)
-            throw 'Mismatched labels when averaging';
+            throw 'Mismatched labels when averaging ' + label + sub_data.label;
         if (num_children != sub_data.children.length)
             throw 'Mismatched number of children';
         // end sanity check
@@ -209,6 +209,10 @@ function process_stacked_data(data_list)
         var list_stacked_sub_data = process_traces(datum.traces);
         var averaged_stacked_sub_data =
             average_stacked_sub_data_list(list_stacked_sub_data);
+
+        var root_time_us = averaged_stacked_sub_data.time / 1000;
+        averaged_stacked_sub_data.label =
+            'Total: ' + root_time_us.toFixed(2) + 'us';
         
         var stacked_run = new StackedRun(
             read_only_result.ops_per_second,
@@ -248,7 +252,15 @@ function process_traces(trace_list)
     for (var index in trace_list)
     {
         var single_trace = trace_list[index];
-        to_return.push(process_single_trace(single_trace));
+        try
+        {
+            to_return.push(process_single_trace(single_trace));
+        }
+        catch (exception)
+        {
+            // handles a few misformatted traces. 
+            continue;
+        }
     }
     return to_return;
 }
@@ -269,9 +281,7 @@ function process_single_trace(trace_list)
     // using unique label for first event, Total.
 
     // total time starts in ns
-    var total_time_ms = total_time/1000000;
-    var total_time_label = "Total: " + total_time_ms + "ms";
-    var to_return = new StackedSubData(total_time,total_time_label,0);
+    var to_return = new StackedSubData(total_time,"Total",0);
     
     var children_array =
         create_sub_data_children(trace_list.slice(1),time_first);
@@ -308,6 +318,9 @@ function create_sub_data_children(trace_list,time_offset)
     {
         var datum = trace_list[index];
 
+        if (should_ignore_event(datum.event_string))
+            continue;
+        
         if (found_top_looking_for_bottom)
         {
             if (bottom_with_prefix(datum.event_string,top_prefix))
@@ -357,6 +370,15 @@ function create_sub_data_children(trace_list,time_offset)
     return to_return;
 }
 
+/**
+ Returns true if should ignore associated event event strings
+ */
+function should_ignore_event(event_string)
+{
+    if (event_string.indexOf('Promote') != -1)
+        return true;
+    return false;
+}
 
 TOP_SUFFIX = 'top';
 TOP_SUFFIX_LENGTH = TOP_SUFFIX.length;
