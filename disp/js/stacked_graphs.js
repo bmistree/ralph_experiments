@@ -14,9 +14,9 @@ function stacked_graphs(stacked_graph_data)
     //var stacked_run_list = process_stacked_data(stacked_graph_data);
     var stacked_run_list =
         deserialize_serialized_stacked_run_list(stacked_graph_data);
-    
-    draw_stacked_graphs(stacked_run_list,STACKED_DIV_ID);
-    update_summarized_json(stacked_run_list);
+    draw_stacked_graphs(stacked_run_list,STACKED_DIV_ID, STACKED_NOTES_DIV_ID);
+    update_summarized_json(stacked_run_list,STACKED_SUMMARIZED_JSON_DIV_ID);
+
 }
 
 /**
@@ -39,7 +39,7 @@ function deserialize_serialized_stacked_run_list(serialized_stacked_run_list)
 
 /**
  @param {Object} serialized_stacked_run --- Object generated from
- importing json generated frmo StackedRun's summarized_json call.
+ importing json generated from StackedRun's summarized_json call.
 
  @return {StackedRun}
  */
@@ -77,7 +77,7 @@ function deserialize_serialized_sub_data(serialized_sub_data)
 }
 
 
-function update_summarized_json(stacked_run_list)
+function update_summarized_json(stacked_run_list,div_id_to_update_on)
 {
     var json_summary_string = '[';
     for (var stacked_run_index in stacked_run_list)
@@ -88,7 +88,7 @@ function update_summarized_json(stacked_run_list)
             json_summary_string += ',';
     }
     json_summary_string += ']';
-    $('#' + STACKED_SUMMARIZED_JSON_DIV_ID).html(json_summary_string);
+    $('#' + div_id_to_update_on).html(json_summary_string);
 }
 
 
@@ -96,7 +96,7 @@ function update_summarized_json(stacked_run_list)
  @param {list} stacked_run_list --- Each element is a StackedRun
  object.
  */
-function draw_stacked_graphs(stacked_run_list,div_id_to_plot_on)
+function draw_stacked_graphs(stacked_run_list,div_id_to_plot_on,notes_div_id)
 {
     //draw_single_stacked_run(stacked_run_list[0],div_id_to_plot_on);
     var flattened_sub_data_list = [];
@@ -187,14 +187,14 @@ function draw_stacked_graphs(stacked_run_list,div_id_to_plot_on)
                var time_ns =
                    flattened_datum.end - flattened_datum.start;
                var time_us = time_ns / 1000;
-               $('#' + STACKED_NOTES_DIV_ID).html(
+               $('#' + notes_div_id).html(
                    'Event: ' + flattened_datum.label + '<br/>' +
                        'Time taken: ' + time_us.toFixed(2) + 'us.');
            }).
         on('mouseout',
            function(flattened_datum)
            {
-               $('#' + STACKED_NOTES_DIV_ID).html('<br/><br/>');
+               $('#' + notes_div_id).html('<br/><br/>');
            });
 
     // add labels to bar regions
@@ -289,7 +289,6 @@ ColorDict.prototype.get_color = function (label)
     {
         var color_list_to_use = colorbrewer.Set3[12];
         var color_to_use = random_color();
-        console.log(color_list_to_use.length);
         if (this.color_index < color_list_to_use.length)
             color_to_use = color_list_to_use[this.color_index];
 
