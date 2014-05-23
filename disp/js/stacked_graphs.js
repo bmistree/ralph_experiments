@@ -1,5 +1,6 @@
-STACKED_DIV_ID = "stacked_tests";
-STACKED_NOTES_DIV_ID = "stacked_tests_notes";
+STACKED_DIV_ID = 'stacked_tests';
+STACKED_NOTES_DIV_ID = 'stacked_tests_notes';
+STACKED_SUMMARIZED_JSON_DIV_ID = 'stacked_summarized_json';
 
 STACKED_BAR_WIDTH = 40;
 STACKED_BAR_SPACING = 10;
@@ -11,6 +12,21 @@ function stacked_graphs(stacked_graph_data)
 {
     var stacked_run_list = process_stacked_data(stacked_graph_data);
     draw_stacked_graphs(stacked_run_list,STACKED_DIV_ID);
+    update_summarized_json(stacked_run_list);
+}
+
+function update_summarized_json(stacked_run_list)
+{
+    var json_summary_string = '[';
+    for (var stacked_run_index in stacked_run_list)
+    {
+        var stacked_run = stacked_run_list[stacked_run_index];
+        json_summary_string += stacked_run.summarized_json();
+        if (stacked_run_index != (stacked_run_list.length - 1))
+            json_summary_string += ',';
+    }
+    json_summary_string += ']';
+    $('#' + STACKED_SUMMARIZED_JSON_DIV_ID).html(json_summary_string);
 }
 
 

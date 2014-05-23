@@ -12,6 +12,21 @@ function StackedRun(throughput, num_threads,averaged_stacked_sub_data)
 }
 
 /**
+ Returns json serialized string of this object.
+ */
+StackedRun.prototype.summarized_json = function()
+{
+    var serialized = '{';
+    serialized += '"througput": ' + this.throughput + ',';
+    serialized += '"num_threads": ' + this.num_threads + ',';
+    serialized +=
+        '"averaged_stacked_sub_data": ' +
+        this.averaged_stacked_sub_data.summarized_json();
+    serialized += '}';
+    return serialized;
+};
+
+/**
  @param {int} time --- The time it took for this operation to complete
 
  @param {string} label --- The name of this operation
@@ -36,6 +51,26 @@ StackedSubData.prototype.add_child = function(child_to_add)
 {
     this.children.push(child_to_add);
 };
+
+StackedSubData.prototype.summarized_json = function()
+{
+    var serialized = '{';
+    serialized += '"time": ' + this.time + ',';
+    serialized += '"label": "' + this.label + '",';
+    serialized += '"start": ' + this.start + ',';
+    serialized += '"end": ' + this.end + ',';
+    serialized += '"children": [';
+    for (var child_index in this.children) 
+   {
+        var child = this.children[child_index];
+        serialized += child.summarized_json();
+        if (child_index != (this.children.length -1))
+            serialized += ',';
+    }
+    serialized += ']}';
+    return serialized;
+};
+
 
 /**
  Returns the maximum depth of this subdata tree.
