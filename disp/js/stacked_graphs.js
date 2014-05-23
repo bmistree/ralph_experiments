@@ -1,4 +1,5 @@
 STACKED_DIV_ID = "stacked_tests";
+STACKED_NOTES_DIV_ID = "stacked_tests_notes";
 
 STACKED_BAR_WIDTH = 40;
 STACKED_BAR_SPACING = 30;
@@ -99,7 +100,22 @@ function draw_stacked_graphs(stacked_run_list,div_id_to_plot_on)
              function (flattened_datum)
              {
                  return color_dict.get_color(flattened_datum.label);
-             });
+             }).
+        on('mouseover',
+           function(flattened_datum)
+           {
+               var time_ns =
+                   flattened_datum.end - flattened_datum.start;
+               var time_us = time_ns / 1000;
+               $('#' + STACKED_NOTES_DIV_ID).html(
+                   'Event: ' + flattened_datum.label + '<br/>' +
+                       'Time taken: ' + time_us.toFixed(2) + 'us.');
+           }).
+        on('mouseout',
+           function(flattened_datum)
+           {
+               $('#' + STACKED_NOTES_DIV_ID).html('');
+           });
 
     // add labels to bar regions
     bar_chart.selectAll('text').
