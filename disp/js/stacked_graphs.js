@@ -2,7 +2,8 @@ STACKED_DIV_ID = "stacked_tests";
 STACKED_NOTES_DIV_ID = "stacked_tests_notes";
 
 STACKED_BAR_WIDTH = 40;
-STACKED_BAR_SPACING = 30;
+STACKED_BAR_SPACING = 10;
+STACKED_BAR_ADDITIONAL_SPACING_BETWEEN_EXPERIMENTS = 30;
 STACKED_BAR_HEIGHT = 1200;
 
 
@@ -51,8 +52,9 @@ function draw_stacked_graphs(stacked_run_list,div_id_to_plot_on)
 
     var single_graph_width =
         max_depth * (STACKED_BAR_WIDTH + STACKED_BAR_SPACING);
-    var full_graph_width = single_graph_width * stacked_run_list.length;
-
+    var full_graph_width = 
+        (single_graph_width + STACKED_BAR_ADDITIONAL_SPACING_BETWEEN_EXPERIMENTS) *
+        stacked_run_list.length;
     
     // indices are strings, values are color strings.  Essentially,
     // there are repeated
@@ -69,7 +71,7 @@ function draw_stacked_graphs(stacked_run_list,div_id_to_plot_on)
     var bar_chart = d3.select('#' + div_id_to_plot_on).
         append('svg:svg').
         attr('width', full_graph_width).
-        attr('height', STACKED_BAR_HEIGHT+100);
+        attr('height', STACKED_BAR_HEIGHT);
 
     // actually draw the bars
     bar_chart.selectAll('rect').
@@ -114,7 +116,7 @@ function draw_stacked_graphs(stacked_run_list,div_id_to_plot_on)
         on('mouseout',
            function(flattened_datum)
            {
-               $('#' + STACKED_NOTES_DIV_ID).html('');
+               $('#' + STACKED_NOTES_DIV_ID).html('<br/><br/>');
            });
 
     // add labels to bar regions
@@ -179,9 +181,13 @@ function text_y_func(flattened_datum,y_heights)
 
 function rect_x_func(flattened_datum,x_rect_positions,single_graph_width)
 {
-    return x_rect_positions(flattened_datum.depth) +
-        flattened_datum.graph_index*single_graph_width;
+    var experiment_offset = flattened_datum.graph_index*
+        (single_graph_width +
+         STACKED_BAR_ADDITIONAL_SPACING_BETWEEN_EXPERIMENTS);
+    
+    return x_rect_positions(flattened_datum.depth) + experiment_offset;
 }
+
 function rect_y_func(flattened_datum,y_heights)
 {
     // top left corner
