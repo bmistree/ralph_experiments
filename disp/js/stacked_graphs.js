@@ -91,7 +91,8 @@ function draw_stacked_graphs(stacked_run_list,div_id_to_plot_on)
         attr('height',
              function(flattened_datum)
              {
-                 return y_heights(flattened_datum.end - flattened_datum.start);
+                 var rect_height = rect_height_func(flattened_datum,y_heights);
+                 return rect_height;
              }).
         attr('width', STACKED_BAR_WIDTH).
         attr('fill',
@@ -136,6 +137,11 @@ function draw_stacked_graphs(stacked_run_list,div_id_to_plot_on)
                      return 'Num threads: ' + flattened_datum.num_threads +
                          '; Total time: ' + root_time_us.toFixed(2) + 'us';
                  }
+
+                 var rect_height = rect_height_func(flattened_datum,y_heights);
+                 if (rect_height < 80)
+                     return "";
+                 
                  return flattened_datum.label;
              });
 
@@ -148,11 +154,11 @@ function draw_stacked_graphs(stacked_run_list,div_id_to_plot_on)
 function text_x_func(flattened_datum,x_rect_positions,single_graph_width)
 {
     return rect_x_func(
-        flattened_datum,x_rect_positions,single_graph_width) - 5;
+        flattened_datum,x_rect_positions,single_graph_width) + 20;
 }
 function text_y_func(flattened_datum,y_heights)
 {
-    return STACKED_BAR_HEIGHT - y_heights(flattened_datum.start);
+    return STACKED_BAR_HEIGHT - y_heights(flattened_datum.start) - 10;
 }
 
 function rect_x_func(flattened_datum,x_rect_positions,single_graph_width)
@@ -164,6 +170,11 @@ function rect_y_func(flattened_datum,y_heights)
 {
     // top left corner
     return STACKED_BAR_HEIGHT - y_heights(flattened_datum.end);
+}
+
+function rect_height_func(flattened_datum, y_heights)
+{
+    return y_heights(flattened_datum.end - flattened_datum.start);
 }
 
 function ColorDict()
