@@ -10,10 +10,72 @@ STACKED_BAR_HEIGHT = 1200;
 
 function stacked_graphs(stacked_graph_data)
 {
-    var stacked_run_list = process_stacked_data(stacked_graph_data);
+    // uncomment if processing raw data
+    //var stacked_run_list = process_stacked_data(stacked_graph_data);
+    var stacked_run_list =
+        deserialize_serialized_stacked_run_list(stacked_graph_data);
+    
     draw_stacked_graphs(stacked_run_list,STACKED_DIV_ID);
     update_summarized_json(stacked_run_list);
 }
+
+/**
+ @param {list} --- Each element should be an object generated from
+ calling summarized_json on a StackedRun object.
+
+ @return {list} --- Each element is a StackedRun object.
+ */
+function deserialize_serialized_stacked_run_list(serialized_stacked_run_list)
+{
+    var to_return = [];
+    for(var i = 0; i < serialized_stacked_run_list.length; ++i)
+    {
+        var serialized_stacked_run = serialized_stacked_run_list[i];
+        to_return.push(
+            deserialize_serialized_stacked_run(serialized_stacked_run));
+    }
+    return to_return;
+}
+
+/**
+ @param {Object} serialized_stacked_run --- Object generated from
+ importing json generated frmo StackedRun's summarized_json call.
+
+ @return {StackedRun}
+ */
+function deserialize_serialized_stacked_run(serialized_stacked_run)
+{
+    var serialized_sub_data = serialized_stacked_run.averaged_stacked_sub_data;
+    var throughput = serialized_stacked_run.throughput;
+    var num_threads = serialized_stacked_run.num_threads;
+
+    var sub_data = deserialize_serialized_sub_data(serialized_sub_data);
+    return new StackedRun(throughput,num_threads,sub_data);
+}
+
+/**
+ @param {Object} serialized_sub_data --- Generated from importing json
+ generated from calling summarized_json on a StackedSubData object.
+
+ @param {StackedSubData}
+ */
+function deserialize_serialized_sub_data(serialized_sub_data)
+{
+    var time = serialized_sub_data.time;
+    var label = serialized_sub_data.label;
+    var start = serialized_sub_data.start;
+    var to_return = new StackedSubData(time,label,start);
+
+    var children = serialized_sub_data.children;
+    for (var i = 0; i < children.length; ++i)
+    {
+        var child = children[i];
+        var child_as_sub_data = deserialize_serialized_sub_data(child);
+        to_return.add_child(child_as_sub_data);
+    }
+    return to_return;
+}
+
 
 function update_summarized_json(stacked_run_list)
 {
