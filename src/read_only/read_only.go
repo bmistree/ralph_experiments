@@ -16,6 +16,7 @@ import "io/ioutil"
 const READ_ONLY_JAR_NAME = "read_perf.jar"
 const LOCKS_OFF_READ_ONLY_JAR_NAME = "locks_off_read_perf.jar"
 const STACKED_READ_ONLY_JAR_NAME = "logging_read_perf.jar"
+const ACTIVE_EVENT_MAP_JAR_NAME = "log_atomic_map.jar"
 
 const DEFAULT_NUM_READS = 10000
 
@@ -56,7 +57,8 @@ func RunAll(jarDir,outputFolder string) {
     // threadPoolSizeTests(jarDir,outputFolder)
     // uuidGenerationTests(jarDir,outputFolder)
     // memLeakTests(jarDir,outputFolder)
-    stackedReadOnlyTests(jarDir,outputFolder)
+    // stackedReadOnlyTests(jarDir,outputFolder)
+    loggedActiveEventMapTests(jarDir,outputFolder)
 }
 
 
@@ -139,12 +141,16 @@ func commonReadOnlyJar(fqJar string, params * Parameter) *ReadOnlyResult {
         perfOutput)
 }
 
-func loggedReadOnlyJar(fqJar string, params * Parameter) *LoggedReadOnlyResult {
+/**
+ @param toSplitOn --- Terminating string for each log output.
+ */
+func loggedReadOnlyJar(
+    fqJar string, params * Parameter,toSplitOn string) *LoggedReadOnlyResult {
 
     perfOutput, outputString := baseReadOnlyJar(fqJar,params)
     return loggedTestRunOutputToResults(
         outputString, params.numReads,params.numThreads,params.opType,
-        perfOutput)
+        perfOutput,toSplitOn)
 }
 
 func testRunOutputToResults(

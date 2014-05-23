@@ -101,13 +101,12 @@ ATOMIC_NUMBER_READ	 448.55989676932245
  */
 func loggedTestRunOutputToResults(
     outputString string, numReads,numThreads uint32,opType operationType,
-    perfOutput * common.PerfOutput) * LoggedReadOnlyResult {
+    perfOutput * common.PerfOutput, toSplitOn string) * LoggedReadOnlyResult {
 
     // each element of slice contains a text trace for a single
     // program, except the last, which just contains a string like
     // this: ATOMIC_NUMBER_READ 448.55989676932245
-    stringTraces := strings.SplitAfter(
-        outputString,"begin_first_phase_commit bottom")
+    stringTraces := strings.SplitAfter(outputString,toSplitOn)
 
     // read overall throughput results
     overallThroughputString := stringTraces[len(stringTraces)-1]
