@@ -10,4 +10,5 @@ function on_ready()
     gc_off_graph(GC_OFF);
     across_different_ops_graph(PERF_NUM_THREADS);
     stacked_graphs(STACKED_GRAPH_DATA);
+    event_map_stacked(EVENT_MAP_STACKED_GRAPH_DATA);
 }

@@ -16,7 +16,6 @@ function stacked_graphs(stacked_graph_data)
         deserialize_serialized_stacked_run_list(stacked_graph_data);
     draw_stacked_graphs(stacked_run_list,STACKED_DIV_ID, STACKED_NOTES_DIV_ID);
     update_summarized_json(stacked_run_list,STACKED_SUMMARIZED_JSON_DIV_ID);
-
 }
 
 /**
