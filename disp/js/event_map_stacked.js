@@ -43,15 +43,12 @@ function event_map_stacked(list_event_map_data)
             // remove final trace from all (had added an un-needed
             // 'end_sentinel' token at end of logging that gets in way of
             // reusing code in process_stacked_data.
-            trace = trace.splice(1,trace.length -1);
+            trace = trace.splice(0,trace.length -1);
             // all events begin with name, "Creation," but may have
             // different second values.
             var second_event_name = trace[1].event_string;
-            if (!(second_event_name in unique_trace_names_dict))
-            {
+            if (!(second_event_name in num_thread_unique_trace_names_dict))
                 num_thread_unique_trace_names_dict[second_event_name] = [];
-                console.log(second_event_name);
-            }
             num_thread_unique_trace_names_dict[second_event_name].push(trace);
         }
     }
