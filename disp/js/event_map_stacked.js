@@ -19,14 +19,19 @@ function event_map_stacked(list_event_map_data)
 {
     // Keys are ints (num threads).  Values are dicts, whose keys are
     // strings (first event name) and values are lists of traces with
-    // this first event.
+    // this first event. Eg.,
+    //
+    // {
+    //     1: { event_name: [trace1, trace2, ...]},
+    //     2: { event_name: [trace1, trace2, ...]}
+    // }
     var unique_trace_names_dict = {};
     for (var i=0; i < list_event_map_data.length; ++i)
     {
         var event_map_data = list_event_map_data[i];
         var num_threads = event_map_data.read_only_result.num_threads;
-        // keys are strings (first event name) and values are lists of
-        // traces with this first event.
+        // keys are strings (second event name) and values are lists of
+        // traces with this second event.
         var num_thread_unique_trace_names_dict = {};
         unique_trace_names_dict[num_threads] =
             num_thread_unique_trace_names_dict;
@@ -38,11 +43,16 @@ function event_map_stacked(list_event_map_data)
             // remove final trace from all (had added an un-needed
             // 'end_sentinel' token at end of logging that gets in way of
             // reusing code in process_stacked_data.
-            trace = trace.splice(0,trace.length -1);
-            var first_event_name = trace[0].event_string;
-            if (!(first_event_name in unique_trace_names_dict))
-                num_thread_unique_trace_names_dict[first_event_name] = [];
-            num_thread_unique_trace_names_dict[first_event_name].push(trace);
+            trace = trace.splice(1,trace.length -1);
+            // all events begin with name, "Creation," but may have
+            // different second values.
+            var second_event_name = trace[1].event_string;
+            if (!(second_event_name in unique_trace_names_dict))
+            {
+                num_thread_unique_trace_names_dict[second_event_name] = [];
+                console.log(second_event_name);
+            }
+            num_thread_unique_trace_names_dict[second_event_name].push(trace);
         }
     }
 
@@ -51,20 +61,23 @@ function event_map_stacked(list_event_map_data)
     var stacked_run_list = [];
     for (var num_threads in unique_trace_names_dict)
     {
-        var trace_list = unique_trace_names_dict[num_threads];
-        var stacked_sub_data_list = process_traces(trace_list);
-        var averaged_stacked_sub_data =
-            average_stacked_sub_data_list(stacked_sub_data_list);
+        var event_name_statistics = unique_trace_names_dict[num_threads];
+        for (var event_name in event_name_statistics)
+        {
+            var trace_list = event_name_statistics[event_name];
+            var stacked_sub_data_list = process_traces(trace_list);
+            var averaged_stacked_sub_data =
+                average_stacked_sub_data_list(stacked_sub_data_list);
         
-        var stacked_run = new StackedRun(
-            0,num_threads, averaged_stacked_sub_data);
-        stacked_run_list.push(stacked_run);
+            var stacked_run = new StackedRun(
+                0,num_threads, averaged_stacked_sub_data);
+            stacked_run_list.push(stacked_run);
+        }
     }
 
     // display stacked run lists
     draw_stacked_graphs(
         stacked_run_list,STACKED_EVENT_MAP_DIV_ID,
         STACKED_EVENT_MAP_NOTES_DIV_ID);
-    
 }
 
