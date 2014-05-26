@@ -68,6 +68,11 @@ function event_map_stacked(list_event_map_data)
         
             var stacked_run = new StackedRun(
                 0,num_threads, averaged_stacked_sub_data);
+            var total_time_ns = stacked_run.averaged_stacked_sub_data.time;
+            var total_time_us = total_time_ns / 1000;
+            
+            stacked_run.averaged_stacked_sub_data.label =
+                'Total ' + total_time_us.toFixed(2) + 'us.  ' + num_threads + ' threads.';
             stacked_run_list.push(stacked_run);
         }
     }

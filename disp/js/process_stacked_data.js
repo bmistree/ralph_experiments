@@ -302,7 +302,8 @@ function process_traces(trace_list)
         }
         catch (exception)
         {
-            // handles a few misformatted traces. 
+            // handles a few misformatted traces.
+            console.log(exception);
             continue;
         }
     }
